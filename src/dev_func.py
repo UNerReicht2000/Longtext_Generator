@@ -27,7 +27,7 @@ def print_list(in_list: list) -> None:
     print("==============")
     print(f'len={len(in_list)}')
     for entry in in_list:
-        print(entry)
+        print('|'+entry+'|')
     print("==============")
     #--------------------
 def print_dict(in_dict: dict) -> None:

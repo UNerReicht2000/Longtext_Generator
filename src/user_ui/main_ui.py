@@ -33,8 +33,9 @@ from core.kuka.process import LongtextTools
 '''
 
 class MainWindowLtG(QMainWindow):
-    def __init__(self):
-        super().__init__()
+    def __init__(self,parent=None):
+        super().__init__(parent)
+        self.setAcceptDrops(True)
         
         self.workdat = Workdat()
 
@@ -44,7 +45,7 @@ class MainWindowLtG(QMainWindow):
         self.list_of_lontext_config = []
         self.setGeometry(300,300,773,403)
         self.setMinimumSize(773,403)
-        #self.setFixedSize(773,403)
+        self.setFixedSize(773,403)
         self.setWindowTitle('Langtext Generator')      
         
 
@@ -309,14 +310,16 @@ class MainWindowLtG(QMainWindow):
 
     #--------------------
     def file_import_ui(self,x_pos: int,y_pos: int):
-  
+        
         boxlayout = QVBoxLayout()
         
         #file_urls = []
         # QGroupBox erstellen
+        #event.acceptProposedAction()
         self.dat_import_box = QGroupBox('Importirte Dateien',self)
         self.dat_import_box.setGeometry(x_pos,y_pos,205,330)
-        self.dat_import_box.setLayout(boxlayout)    
+        self.dat_import_box.setLayout(boxlayout)   
+        self.dat_import_box.setAcceptDrops(True) 
         
         #Delete Item PushButten
         self.del_item_butten = QPushButton('Delete',self)
@@ -333,8 +336,8 @@ class MainWindowLtG(QMainWindow):
         self.clean_list_butten.clicked.connect(self.clear_list)
 
         self.list_of_file_viso = QListWidget(self)
-        self.list_of_file_viso.acceptDrops()
-        self.list_of_file_viso.setAcceptDrops(True)
+        #self.list_of_file_viso.acceptDrops()
+        #self.list_of_file_viso.setAcceptDrops(True)
         self.list_of_file_viso.setGeometry(x_pos+10,y_pos+20,185,265)
         self.list_of_file_viso.itemClicked.connect(self.clicked_list_event)
         #
@@ -349,7 +352,7 @@ class MainWindowLtG(QMainWindow):
         debug_print('Dorp Datei Event')
 
         file_urls = [url.toLocalFile() for url in event.mimeData().urls()]
-
+        print(file_urls)
         for index in range(len(file_urls)):
                 if not file_urls in self.list_of_drops:
                     self.list_of_drops.append(file_urls[index])

@@ -14,6 +14,8 @@ from os import access
 from os import R_OK
 from os import W_OK
 
+from re import search
+
 def delete_content(in_data: list, delete: int|float|str) -> list:
     """_summary_
 
@@ -68,7 +70,7 @@ def create_file_with_list (datname: str,file_part: str,data: list,data_typ: int 
     dat.close()
     return final_dataname      
     #--------------------
-def validated_datname(datname: str) -> str:
+def validated_file_name(file_name: str) -> str:
     """checkt the name 
 
     Args:
@@ -79,20 +81,20 @@ def validated_datname(datname: str) -> str:
     """
 
     default_name = 'Langtext'
-    if datname.isspace():
+    if file_name.isspace():
         return default_name
     
-    if len(datname) <= 0:
+    if len(file_name) <= 0:
         return default_name
     
-    if len(datname) > 39:
+    if len(file_name) > 39:
         return default_name
     
     BlackList = ['/','*','|']
     for item in BlackList:
-        if item in list(datname):
+        if item in list(file_name):
             return default_name
-    return datname
+    return file_name
     #--------------------
 def lode_user_files(files_list: list) -> list:
     """turns a list of files into a list
@@ -341,4 +343,18 @@ def clean_up_longtext(longtext: list,data_typ: int = 0) -> list:
         print('Error')      
     
     return longtext
+    #--------------------
+def extract_number(input_string: str):
+    """Extracts the first number from a given string.
+
+    Args:
+        input_string (str): The input string from which to extract the number.
+
+    Returns:
+        int: The extracted number as an integer. Returns None if no number is found.
+    """
+    match = search(r'\d+', input_string)
+    if match:
+        return int(match.group())
+    return None
     #--------------------

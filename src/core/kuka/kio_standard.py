@@ -183,6 +183,7 @@ def find_group_objects(in_data,scan,delet_marker,BufferInstanz):
         
         for index in range(len(group_objects)):
             if (len(group_objects[index]) ==3):
+                group_objects[index][0] = group_objects[index][0].strip()
                 group_objects[index][1] = group_objects[index][1].strip()
                 group_objects[index][2] = group_objects[index][2].strip()
                 if group_objects[index][1].isdecimal() and group_objects[index][2].isdecimal():

@@ -60,21 +60,21 @@ def create_longtext(in_data,config,delet_marker,dat_typ,BufferInstanz):
         if (config[index] == 50):
             debug_print('Import ANIN')
             BufferInstanz.append('ANIN===========')
+            BufferInstanz.append('Not available at the moment')
             pass
         if (config[index] == -50):
             debug_print('Import ANOUT')
             BufferInstanz.append('ANOUT==========')
+            BufferInstanz.append('Not available at the moment')
             pass
         if (config[index] == 100):
-            debug_print('Import BI')
-            BufferInstanz.append('BI=============')
-            longtext = add_in_longtext(find_singel_objects(in_data,'BI',delet_marker,BufferInstanz),longtext,1439,'IN[',dat_typ)
+            debug_print('Import DI')
+            BufferInstanz.append('DI=============')
             longtext = add_in_longtext(find_singel_objects(in_data,'DI',delet_marker,BufferInstanz),longtext,1439,'IN[',dat_typ)
 
         if (config[index] == -100):
-            debug_print('Import BO')
-            BufferInstanz.append('BO=============')
-            longtext = add_in_longtext(find_singel_objects(in_data,'BO',delet_marker,BufferInstanz),longtext,5535,'OUT[',dat_typ)
+            debug_print('Import DO')
+            BufferInstanz.append('DO=============')
             longtext = add_in_longtext(find_singel_objects(in_data,'DO',delet_marker,BufferInstanz),longtext,5535,'OUT[',dat_typ)
 
         if (config[index] == 200):
@@ -87,35 +87,6 @@ def create_longtext(in_data,config,delet_marker,dat_typ,BufferInstanz):
             BufferInstanz.append('GO=============')
             longtext = add_in_longtext(find_group_objects(in_data,'GO',delet_marker,BufferInstanz),longtext,5535,'OUT[',dat_typ)
 
-        if (config[index] == 300):
-            debug_print('Import II')
-            BufferInstanz.append('II=============')
-            longtext = add_in_longtext(find_group_objects(in_data,'II',delet_marker,BufferInstanz),longtext,1439,'IN[',dat_typ)
-
-        if (config[index] == -300):
-            debug_print('Import IO')
-            BufferInstanz.append('IO=============')
-            longtext = add_in_longtext(find_group_objects(in_data,'IO',delet_marker,BufferInstanz),longtext,5535,'OUT[',dat_typ)
-
-        if (config[index] == 400):
-            debug_print('Import RI')
-            BufferInstanz.append('RI=============')
-            longtext = add_in_longtext(find_group_objects(in_data,'RI',delet_marker,BufferInstanz),longtext,1439,'IN[',dat_typ)
-
-        if (config[index] == -400):
-            debug_print('Import RO')
-            BufferInstanz.append('RI=============')
-            longtext = add_in_longtext(find_group_objects(in_data,'RO',delet_marker,BufferInstanz),longtext,5535,'OUT[',dat_typ)
-
-        if (config[index] == 500):
-            debug_print('Import CI')
-            BufferInstanz.append('CI=============')
-            longtext = add_in_longtext(find_group_objects(in_data,'CI',delet_marker,BufferInstanz),longtext,1439,'IN[',dat_typ)
-
-        if (config[index] == -500):
-            debug_print('Import CO')
-            BufferInstanz.append('CO=============')
-            longtext = add_in_longtext(find_group_objects(in_data,'CO',delet_marker,BufferInstanz),longtext,5535,'OUT[',dat_typ)
             
     longtextdat.close()
     
@@ -148,8 +119,8 @@ def find_singel_objects(in_data,scan,delet_marker,BufferInstanz):
             singel_objects[index] = singel_objects[index].replace("to","")
             singel_objects[index] = singel_objects[index].strip()
             singel_objects[index] = singel_objects[index].split("$")
-            #for sub_index in range(len(singel_objects[index])):
-                #pass
+            for sub_index in range(len(singel_objects[index])):
+                pass
                 # singel_objects[index][sub_index] = delete_content(singel_objects[index][sub_index],'')
                 
         for index in range(len(singel_objects)):
@@ -162,7 +133,6 @@ def find_singel_objects(in_data,scan,delet_marker,BufferInstanz):
                     singel_objects[index][0] = singel_objects[index][0].lstrip(scan.capitalize())
                     singel_objects[index][0] = singel_objects[index][0].lstrip(scan.lower())
                 singel_objects[index][0] = singel_objects[index][0].lstrip('_')    
-                singel_objects[index][0] = singel_objects[index][0].strip()    
             else:               
                 BufferInstanz.append(CreatErrStr.wrong_length(singel_objects[index],1))
                 singel_objects[index] = ''
@@ -199,13 +169,12 @@ def find_group_objects(in_data,scan,delet_marker,BufferInstanz):
             group_objects[index] = group_objects[index].replace("]","")
             group_objects[index] = group_objects[index].strip()
             group_objects[index] = group_objects[index].split("$")            
-            #for sub_index in range(len(group_objects[index])):
-                #pass
+            for sub_index in range(len(group_objects[index])):
+                pass
                 # group_objects[index][sub_index] = delete_content(group_objects[index][sub_index],'')
         
         for index in range(len(group_objects)):
             if (len(group_objects[index]) ==3):
-                group_objects[index][0] = group_objects[index][0].strip()
                 group_objects[index][1] = group_objects[index][1].strip()
                 group_objects[index][2] = group_objects[index][2].strip()
                 if group_objects[index][1].isdecimal() and group_objects[index][2].isdecimal():

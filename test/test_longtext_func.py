@@ -15,6 +15,7 @@ from src.core.longtext_func import Buffer
 from src.core.longtext_func import Creat_Error_String
 from src.core.longtext_func import validated_datpath
 from src.core.longtext_func import clean_up_longtext
+from src.core.longtext_func import extract_number
 
 CreatErrStr = Creat_Error_String()
 Errorbuffer = Buffer()
@@ -148,3 +149,7 @@ def test_clen_up_longtext():
     with pytest.raises(TypeError):clean_up_longtext()
     with pytest.raises(TypeError):clean_up_longtext(1,1)
     #--------------------
+def test_extract_number():
+    assert extract_number('Test01') == 1
+    assert extract_number('Test010') == 10
+    assert extract_number('Test01ghg5') == 1

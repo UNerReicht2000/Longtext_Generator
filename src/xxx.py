@@ -12,13 +12,16 @@ class DragDropTextEdit(QTextEdit):
     def dragEnterEvent(self, event):
         if event.mimeData().hasUrls():
             event.acceptProposedAction()
+            print(event.acceptProposedAction())
         else:
             super().dragEnterEvent(event)
+            print(super().dragEnterEvent(event))
 
     def dropEvent(self, event):
         if event.mimeData().hasUrls():
             for url in event.mimeData().urls():
                 file_path = url.toLocalFile()
+                print(file_path)
                 with open(file_path, 'r') as file:
                     self.append(file.read())
             event.acceptProposedAction()
