@@ -24,8 +24,6 @@ from user_ui.popup_ui import StartAndSavePopUp
 
 #from user_ui.ui_func import DragDropListWidget
 
-from core.kuka.process import Workdat
-from core.kuka.process import LongtextTools
 
 '''read my
     sort cuts
@@ -37,7 +35,7 @@ class MainWindowLtG(QMainWindow):
         super().__init__(parent)
         self.setAcceptDrops(True)
         
-        self.workdat = Workdat()
+        #self.workdat = Workdat()
 
         self.list_of_files = []
         self.list_of_drops = []
@@ -58,8 +56,8 @@ class MainWindowLtG(QMainWindow):
         self.start_butten.clicked.connect(self.start_prozess)
 
         self.menu_bar_ui()
-        self.declaration_system_ui(225,30)
-        self.longtext_name_ui(225,100)
+        #self.declaration_system_ui(225,30)
+        #self.longtext_name_ui(225,100)
         self.longtext_config_ui(585,30)       
         self.file_import_ui(10,30)
         self.text_options_ui(225,170)
@@ -120,8 +118,8 @@ class MainWindowLtG(QMainWindow):
             directory = getcwd(),
             filter = file_filter,
         )
-        debug_print(response[0])
-        debug_print(len(response[0]))
+        print(response[0])
+        print(len(response[0]))
         #if not len(response[0] == 0):
         for index in range(len(response[0])):
             self.list_of_file_viso.addItem(QListWidgetItem(response[0][index]))
@@ -130,7 +128,7 @@ class MainWindowLtG(QMainWindow):
     def clean_longtext(self):
         """get file names for import in the prozess
         """
-        longtext = LongtextTools()
+        #longtext = LongtextTools()
         #--------------------
         self.clen_longtext.setChecked(False)
         #--------------------
@@ -141,24 +139,25 @@ class MainWindowLtG(QMainWindow):
             directory=getcwd(),
             filter=file_filter,
         )
-        debug_print(str(response[0]))
-        if longtext.clen_up(response[0]) and (not len(response[0]) == 0):
+        print(str(response[0]))
+        if False:
+            if longtext.clen_up(response[0]) and (not len(response[0]) == 0):
 
-            response = QFileDialog.getSaveFileName(
-                parent=self,
-                caption='Select a data file',
-                directory= 'Roboter1.en.csv',
-                filter=response[1],
-                #initialFilter='Excel File (*.xlsx *.xls)'
-                )
-            debug_print(str(response))
-            longtext.save_file(response[0])
-        else:
-            debug_print('abort')
+                response = QFileDialog.getSaveFileName(
+                    parent=self,
+                    caption='Select a data file',
+                    directory= 'Roboter1.en.csv',
+                    filter=response[1],
+                    #initialFilter='Excel File (*.xlsx *.xls)'
+                    )
+                debug_print(str(response))
+                longtext.save_file(response[0])
+            else:
+                debug_print('abort')
     def delete_empty_lines_in_longtext(self):
         """get file names for import in the prozess
         """
-        longtext = LongtextTools()
+        #longtext = LongtextTools()
         #--------------------
         self.update_longtext.setChecked(False)
         #--------------------
@@ -171,20 +170,21 @@ class MainWindowLtG(QMainWindow):
             )
         debug_print(str(response[0]))
 
-        if longtext.delete_empty_lines(response[0]) and (not len(response[0]) == 0):
+        if False:
+            if longtext.delete_empty_lines(response[0]) and (not len(response[0]) == 0):
 
-            response = QFileDialog.getSaveFileName(
-                parent=self,
-                caption='Select a data file',
-                directory= 'Roboter1.en.csv',
-                filter=response[1],
-                initialFilter='Longtext (*.xlsx *.csv); Longtext (*.txt)'
-                )
-            debug_print(str(response))
-            longtext.save_file(response[0])
-        else:
-            debug_print('abort')
-        #--------------------
+                response = QFileDialog.getSaveFileName(
+                    parent=self,
+                    caption='Select a data file',
+                    directory= 'Roboter1.en.csv',
+                    filter=response[1],
+                    initialFilter='Longtext (*.xlsx *.csv); Longtext (*.txt)'
+                    )
+                debug_print(str(response))
+                longtext.save_file(response[0])
+            else:
+                debug_print('abort')
+            #--------------------
     def merge_longtext(self):
             pass
         #--------------------
@@ -243,22 +243,23 @@ class MainWindowLtG(QMainWindow):
             self.longtext_confic_box.setGeometry(x_pos, y_pos,175,330)
             self.longtext_check_box = {}
             self.name_of_check_box = {
+                0:'without filters',
                 #10:'Timer',
                 #20:'Counter',
                 #30:'Flag s',
-                40:'CYCFlag s',
+                #40:'CYCFlag s',
                 #50:'Analogue Inputs',
                 #-50:'Analogue Outputs',
                 100:'Digital Inputs',
                 -100:'Digital Outputs',
                 200:'Grouped Inputs',
                 -200:'Grouped Outputs',
-                300:'Integer Inputs',
-                -300:'Integer Outputs',
-                400:'Real Inputs',
-                -400:'Real Outputs',
-                500:'Char Inputs',
-                -500:'Char Outputs',
+                #300:'Integer Inputs',
+                #-300:'Integer Outputs',
+                #400:'Real Inputs',
+                #-400:'Real Outputs',
+                #500:'Char Inputs',
+                #-500:'Char Outputs',
                 }   
 
             x_pos += 10
@@ -287,7 +288,8 @@ class MainWindowLtG(QMainWindow):
         debug_print('Select All Butten = True')
         self.select_all_butten.setChecked(False)
         for key in  self.longtext_check_box:
-            self.longtext_check_box[key].setChecked(True)
+            if key != 0:
+                self.longtext_check_box[key].setChecked(True)
         self.set_longtext_config()
         #
     def reset_all(self):

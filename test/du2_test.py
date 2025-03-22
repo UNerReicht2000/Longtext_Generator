@@ -1,3 +1,4 @@
-string = ' hhvh bniuevbj ;nuipbjbhb       '
-result = string.split(';')[0]
-print(result)
+
+
+for temp in range(1,101):
+    print(f'DECL E6AXIS XAddGrpPos{temp}=')

@@ -71,7 +71,7 @@ def in_tolerance(value1: int|float,value2: int|float,tolerance: int|float) -> bo
 
     return abs(value1 - value2) <= tolerance
     #--------------------
-class Cycle_Time():
+class CycleTime():
     def __init__(self,name: str = 'Cycle_Time') -> None:
         """init the Cycle Time
 
@@ -101,15 +101,7 @@ class Cycle_Time():
         """
         return self.cycle_time
         #--------------------  
-    def name(self) -> str:
-        """name of cycletimer
-
-        Returns:
-            str: return name of cycletimer
-        """
-        return self.timer_name 
-        #--------------------
-    def pretty_print(self) -> str:
+    def __call__(self) -> str:
         """print pretty the cycle time
         """
         result_string = f'the measured time of {self.timer_name} is: {self.cycle_time}'

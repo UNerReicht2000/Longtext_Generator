@@ -1,32 +1,21 @@
 # -*- coding: utf-8 -*-
 from os import path
-
 from dataclasses import dataclass
-
-from core.longtext_func import extract_number
-from core.longtext_func import validated_file_name
-
-from dev_func import print_dict
+from .longtext_func import extract_number
+from .longtext_func import validated_file_name
 
 @dataclass
 class Markings:
     aktiv: bool
-    input: tuple
-    output: tuple
-    #--------------------
-
-@dataclass
-class Markings:
-    aktiv: bool
-    singel: tuple
-    multi: tuple
+    singel: dict
+    multi: dict
     #--------------------
 
 class Longtext:
     def __init__(self):
-        self.base_data = {}#{'file':['1','']}
+        self.base_data = {}
         self.longtext = {}
-        self.var_markings = Markings(aktiv = False,singel = (''),multi = (''))
+        self.var_markings = Markings(aktiv = False,singel = {'in':(''),'out':('')},multi = {'in':(''),'out':('')})
         self.log_name = ''
         self.info_log = []
         #--------------------
@@ -46,14 +35,18 @@ class Longtext:
         #--------------------
     def impot_markings(self,markings: Markings):
         self.var_markings = Markings
-        for item in markings.singel:
-            self.var_markings.singel = markings.singel + (item.upper(),item.lower(),item.capitalize())
-        for item in markings.multi:
-            self.var_markings.multi = markings.multi + (item.upper(),item.lower(),item.capitalize())
+        for item in markings.singel['in']:
+            self.var_markings.singel['in'] = markings.singel['in'] + (item.upper(),item.lower(),item.capitalize())
+        for item in markings.singel['out']:
+            self.var_markings.singel['out'] = markings.singel['out'] + (item.upper(),item.lower(),item.capitalize())
+        for item in markings.multi['in']:
+            self.var_markings.multi['in'] = markings.multi['in'] + (item.upper(),item.lower(),item.capitalize())
+        for item in markings.multi['out']:
+            self.var_markings.multi['out'] = markings.multi['out'] + (item.upper(),item.lower(),item.capitalize())
         self.var_markings.aktiv = True
         #--------------------
-    def delete_markings(self):
-        self.var_markings = Markings(aktiv = False,singel = (''),multi = (''))
+    def clear_markings(self):
+        self.var_markings = Markings(aktiv = False,singel = {'in':(''),'out':('')},multi = {'in':(''),'out':('')})
         #--------------------
     def read_dat(self,files: list):
         """turns a list of files in to the base data
@@ -108,17 +101,17 @@ class Longtext:
                 self.base_data[file][line] = [x for x in self.base_data[file][line] if x != '']
             
             for line in range(len(self.base_data[file])):
-                if len(self.base_data[file][line]) == 1 and ((self.base_data[file][line][0].startswith(self.var_markings.singel) and self.var_markings.aktiv)):
+                if len(self.base_data[file][line]) == 1 and ((self.base_data[file][line][0].startswith(self.var_markings.singel['in']) or self.base_data[file][line][0].startswith(self.var_markings.singel['out']) and self.var_markings.aktiv)):
                     print(self.base_data[file][line])
-                elif len(self.base_data[file][line]) == 2 and ((self.base_data[file][line][0].startswith(self.var_markings.singel) and self.var_markings.aktiv) or not self.var_markings.aktiv):
+                elif len(self.base_data[file][line]) == 2 and ((self.base_data[file][line][0].startswith(self.var_markings.singel['in']) or self.base_data[file][line][0].startswith(self.var_markings.singel['out']) and self.var_markings.aktiv)):
                     if self.base_data[file][line][1] not in self.longtext:
                         self.longtext[self.base_data[file][line][1]] = []
                     self.longtext[self.base_data[file][line][1]] += [self.base_data[file][line][0]]
-                elif len(self.base_data[file][line]) == 3 and ((self.base_data[file][line][0].startswith(self.var_markings.singel) and self.var_markings.aktiv)):
+                elif len(self.base_data[file][line]) == 3 and ((self.base_data[file][line][0].startswith(self.var_markings.singel['in']) or self.base_data[file][line][0].startswith(self.var_markings.singel['out']) and self.var_markings.aktiv)):
                     #if self.base_data[file][line][1] not in self.longtext:
                     #    self.longtext[self.base_data[file][line][1]] = []
                     print(self.base_data[file][line])
-                elif len(self.base_data[file][line]) == 4 and ((self.base_data[file][line][0].startswith(self.var_markings.multi) and self.var_markings.aktiv) or not self.var_markings.aktiv):
+                elif len(self.base_data[file][line]) == 4 and ((self.base_data[file][line][0].startswith(self.var_markings.multi['in']) or self.base_data[file][line][0].startswith(self.var_markings.multi['out']) and self.var_markings.aktiv) or not self.var_markings.aktiv):
                     start_point = extract_number(self.base_data[file][line][1])
                     end_point = extract_number(self.base_data[file][line][3])
                     if type(start_point) == int and type(end_point) == int:
@@ -154,6 +147,20 @@ class Longtext:
         else:
             raise TypeError('only Longtext can be added')
         #--------------------
+    def delete_markings(self):
+        for key in self.longtext:
+            for value in self.longtext[key]:
+                if value.startswith('$'):
+                    self.longtext[key].remove(value)
+            self.longtext[key] = [x for x in value if not x.startswith('$')]
+    def delete_empty_lines(self):
+        keys_to_remove = [key for key in self.longtext if self.longtext[key] == []]
+        for key in keys_to_remove:
+            del self.longtext[key]
+        #----------------
+    def check_for_errors(self):
+        pass
+        #----------------
     def export_csv(self,file_name: str,directory: str):
         if type(directory) == str:   
             final_file_name = validated_file_name(file_name)
@@ -209,31 +216,9 @@ class Longtext:
             final_file_name = final_file_name+'.txt'
 
             with open(path.join(directory, final_file_name), "w") as file:
-                for key, value in self.longtext.items():
-                    for item in value:
-                        if not len(value) == item:
-                            line += item + ' '
-                        else:
-                            line += item
-                    file.write(f'{key} {line}\n')
+                for key,value in self.longtext.items():
+                    file.write(f'{key} {' '.join(value)}'.rstrip() + '\n')
             file.close()
         else:
             raise TypeError('directory must be a string')
-        #--------------------
-
-longtext_raw = Longtext()
-longtext = Longtext()
-longtext.create_template()
-
-list_of_fils = [r'C:\Users\dunger\Desktop\Vardat\VarStandardSig.dat',
-                r'C:\Users\dunger\Desktop\Vardat\VarUserSig.dat']
-#longtext_raw.read_dat(list_of_fils)
-longtext_raw.read_dat([r'C:\Users\dunger\Desktop\Vardat\VarUserSig.dat'])
-#test_longtext.impot_macker(Markings(singel = ('di','do'),multi = ('gi','go')))
-longtext_raw.scan_data()
-longtext.merge(longtext_raw)
-#print_dict(longtext())
-#longtext.export_txt('longtext_test',r'C:\Users\dunger\Desktop\Vardat\test')
-#print(longtext.log_name)
-longtext.export_csv('longtext_test',r'C:\Users\dunger\Desktop\Vardat\test')
-#print(longtext.log_name)   
+        #-------------------- 

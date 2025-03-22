@@ -4,9 +4,6 @@ from dev_func import debug_print
 
 from os import getcwd
 
-from core.kuka.process import Process
-from core.kuka.process import Workdat
-
 from PyQt6.QtWidgets import QWidget
 from PyQt6.QtWidgets import QLabel
 from PyQt6.QtWidgets import QPushButton
@@ -18,8 +15,8 @@ from PyQt6.QtWidgets import QFileDialog
 
 class StartAndSavePopUp(QWidget):
     def __init__(self,titel):
-        self.core_process = Process()
-        self.workdat = Workdat()
+        #self.core_process = Process()
+        #self.workdat = Workdat()
         super().__init__()
         self.titel = titel
 

@@ -17,8 +17,7 @@ from PyQt6.QtWidgets import QFileDialog
 class longtext_editor(QMainWindow):
     def __init__(self):
         super().__init__()
-
-        self.longtexts        
+      
         self.setGeometry(300,100,500,700)
         self.setWindowTitle('Longtext Editor')
         self.setAcceptDrops(True)

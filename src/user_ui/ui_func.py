@@ -20,7 +20,7 @@ from PyQt6.QtWidgets import QFileDialog
 
 from PyQt6.QtGui import QAction
 
-from core.kuka.process import LongtextTools
+from src.core.process import LongtextTools
 
 
 
