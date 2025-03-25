@@ -1,4 +1,5 @@
 
+s = r"C:/Users/dunger/Documents/BBS/01_Projekte/00_Langtext/Langtext_Generator/Longtext.csv"
 
-for temp in range(1,101):
-    print(f'DECL E6AXIS XAddGrpPos{temp}=')
+print(s.split('/')[-1])
+print(s.replace(s.split('/')[-1],''))

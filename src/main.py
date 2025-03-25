@@ -14,10 +14,10 @@ def __init__() -> None:
 if __name__ == '__main__':
     test_mode = True
     if test_mode:
-        debug_print('Start')
+        print('Start')
         userinterface = MainWindowLtG()
     else:
-        debug_print('test_mode aktiv')
+        print('test_mode aktiv')
         longtext_raw = Longtext()
         longtext = Longtext()
         longtext.create_template()

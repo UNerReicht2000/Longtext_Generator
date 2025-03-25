@@ -17,7 +17,7 @@ class Longtext:
         self.longtext = {}
         self.var_markings = Markings(aktiv = False,singel = {'in':(''),'out':('')},multi = {'in':(''),'out':('')})
         self.log_name = ''
-        self.info_log = []
+        self.log = []
         #--------------------
     def __call__(self):
         return self.longtext
@@ -161,18 +161,29 @@ class Longtext:
     def check_for_errors(self):
         pass
         #----------------
+    def check_for_double_declarations(self):
+        self.log += ['Double declarations:']
+        count = 0
+        for key in self.longtext:
+            if len(self.longtext[key]) > 1:
+                count += 1
+                error = f'{key} has multiple declarations({self.longtext[key]})'
+                print(error)
+                self.log += [error]
+        self.log += [f'{count} Double declarations were found']
+        #
     def export_csv(self,file_name: str,directory: str):
         if type(directory) == str:   
             final_file_name = validated_file_name(file_name)
             error_count = 0
 
-            while (path.isfile(path.join(directory, final_file_name + '.csv'))):
-                if path.isfile(path.join(directory, final_file_name + '.csv')):
+            while (path.isfile(path.join(directory, final_file_name))):
+                if path.isfile(path.join(directory, final_file_name)):
                     basename, extension = path.splitext(final_file_name)
                     final_file_name = f"{basename}_copy{extension}"
 
                 error_count += 1
-            final_file_name = final_file_name + '.csv'
+            final_file_name = final_file_name
             self.log_name = final_file_name
 
             with open(path.join(directory, final_file_name), "w") as file:
@@ -186,13 +197,13 @@ class Longtext:
         if type(directory) == str:   
             final_file_name = validated_file_name(file_name)
             error_count = 0
-            while (path.isfile(path.join(directory, final_file_name + '.txt'))):
-                if path.isfile(path.join(directory, final_file_name + '.txt')):
+            while (path.isfile(path.join(directory, final_file_name))):
+                if path.isfile(path.join(directory, final_file_name)):
                     basename, extension = path.splitext(final_file_name)
                     final_file_name = f"{basename}_copy{extension}"
 
                 error_count += 1
-            final_file_name = final_file_name + '.txt'
+            final_file_name = final_file_name
             self.log_name = final_file_name
 
             with open(path.join(directory, final_file_name), "w") as file:
@@ -204,6 +215,9 @@ class Longtext:
         #--------------------
     def export_log(self,file_name: str,directory: str):
         line = ''
+        for line in self.log:
+            print(line)
+        return
         if type(directory) == str:   
             final_file_name = validated_file_name(file_name)
             error_count = 0
@@ -216,8 +230,9 @@ class Longtext:
             final_file_name = final_file_name+'.txt'
 
             with open(path.join(directory, final_file_name), "w") as file:
-                for key,value in self.longtext.items():
-                    file.write(f'{key} {' '.join(value)}'.rstrip() + '\n')
+                file.write(self.log_name + '\n')
+                for line in self.log:
+                    file.write(line + '\n')
             file.close()
         else:
             raise TypeError('directory must be a string')

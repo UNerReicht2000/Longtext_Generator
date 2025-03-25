@@ -20,7 +20,7 @@ from PyQt6.QtWidgets import QFileDialog
 
 from PyQt6.QtGui import QAction
 
-from user_ui.popup_ui import StartAndSavePopUp
+from core.kuka import Longtext
 
 #from user_ui.ui_func import DragDropListWidget
 
@@ -35,7 +35,6 @@ class MainWindowLtG(QMainWindow):
         super().__init__(parent)
         self.setAcceptDrops(True)
         
-        #self.workdat = Workdat()
 
         self.list_of_files = []
         self.list_of_drops = []
@@ -56,20 +55,16 @@ class MainWindowLtG(QMainWindow):
         self.start_butten.clicked.connect(self.start_prozess)
 
         self.menu_bar_ui()
-        #self.declaration_system_ui(225,30)
-        #self.longtext_name_ui(225,100)
         self.longtext_config_ui(585,30)       
         self.file_import_ui(10,30)
-        self.text_options_ui(225,170)
-    
+        self.text_options_ui(225,30)
+        self.setAcceptDrops(True)
     #-------------------- 
     def menu_bar_ui(self):
         """menubar ui
         """
-        
-        #button_action = QAction(QIcon("bug.png"), "&Your button", self)
+
         self.import_data_button = QAction('Import Dat', self)
-        #self.import_data_button.setStatusTip("Import VarXXX.dat")
         self.import_data_button.triggered.connect(self.get_file_names)
         self.import_data_button.setCheckable(True)
 
@@ -79,28 +74,37 @@ class MainWindowLtG(QMainWindow):
         self.file_menu.addAction(self.import_data_button)
         self.file_menu.addSeparator()
 
-        self.clen_longtext = QAction('Clean Longtext', self)
-        self.clen_longtext.triggered.connect(self.clean_longtext)
-        self.clen_longtext.setCheckable(True)
+        self.tb_clen_longtext = QAction('Clean Longtext', self)
+        self.tb_clen_longtext.triggered.connect(self.clean_longtext)
+        self.tb_clen_longtext.setCheckable(True)
 
-        self.update_longtext = QAction('Delete Empty Lines', self)
-        self.update_longtext.triggered.connect(self.delete_empty_lines_in_longtext)
-        self.update_longtext.setCheckable(True)
+        self.tb_update_longtext = QAction('Delete Empty Lines', self)
+        self.tb_update_longtext.triggered.connect(self.delete_empty_lines_in_longtext)
+        self.tb_update_longtext.setCheckable(True)
         #merge
-        self.merge_longtext = QAction('merge Longtext', self)
+        self.tb_merge_longtext = QAction('merge Longtext', self)
         #self.merge_longtext.triggered.connect(dummy_prog)
-        self.merge_longtext.setCheckable(True)
+        self.tb_merge_longtext.setCheckable(True)
         #edit
-        self.longtext_editor = QAction('Longtext editor', self)
+        self.tb_longtext_editor = QAction('Longtext Editor', self)
         #self.merge_longtext.triggered.connect(dummy_prog)
-        self.longtext_editor.setCheckable(True)
+        self.tb_longtext_editor.setCheckable(True)
+
+        self.tb_check_longtext = QAction('Check Longtext', self)
+        self.tb_check_longtext.triggered.connect(self.check_longtext)
+        self.tb_check_longtext.setCheckable(True)
+
 
         self.tool_menu = self.menu.addMenu('&Tools')
-        self.tool_menu.addAction(self.clen_longtext)
-        self.tool_menu.addAction(self.update_longtext)
-        self.tool_menu.addAction(self.merge_longtext)
-        self.tool_menu.addAction(self.longtext_editor)
+        self.tool_menu.addAction(self.tb_clen_longtext)
+        self.tool_menu.addAction(self.tb_update_longtext)
+        self.tool_menu.addAction(self.tb_merge_longtext)
+        self.tool_menu.addAction(self.tb_longtext_editor)
         self.tool_menu.addSeparator()
+        self.tool_menu.addAction(self.tb_check_longtext)
+        self.tool_menu.addSeparator()
+        #self.tool_menu = self.menu.addMenu('&Settings')
+        
     #-------------------- 
 
     #-------------------- 
@@ -130,9 +134,9 @@ class MainWindowLtG(QMainWindow):
         """
         #longtext = LongtextTools()
         #--------------------
-        self.clen_longtext.setChecked(False)
+        self.tb_clen_longtext.setChecked(False)
         #--------------------
-        file_filter = 'Longtext (*.xlsx *.csv);; Longtext (*.txt)'
+        file_filter = 'Longtext (*.csv);; Longtext (*.txt)'
         response = QFileDialog.getOpenFileName(
             parent=self,
             caption='Select a file',
@@ -140,126 +144,37 @@ class MainWindowLtG(QMainWindow):
             filter=file_filter,
         )
         print(str(response[0]))
-        if False:
-            if longtext.clen_up(response[0]) and (not len(response[0]) == 0):
 
-                response = QFileDialog.getSaveFileName(
-                    parent=self,
-                    caption='Select a data file',
-                    directory= 'Roboter1.en.csv',
-                    filter=response[1],
-                    #initialFilter='Excel File (*.xlsx *.xls)'
-                    )
-                debug_print(str(response))
-                longtext.save_file(response[0])
-            else:
-                debug_print('abort')
     def delete_empty_lines_in_longtext(self):
         """get file names for import in the prozess
         """
-        #longtext = LongtextTools()
+        print('Delete Empty Lines')
         #--------------------
-        self.update_longtext.setChecked(False)
-        #--------------------
-        file_filter = 'Longtext (*.xlsx *.csv);; Longtext (*.txt)'
-        response = QFileDialog.getOpenFileName(
-            parent=self,
-            caption='Select a file',
-            directory=getcwd(),
-            filter=file_filter,
-            )
-        debug_print(str(response[0]))
-
-        if False:
-            if longtext.delete_empty_lines(response[0]) and (not len(response[0]) == 0):
-
-                response = QFileDialog.getSaveFileName(
-                    parent=self,
-                    caption='Select a data file',
-                    directory= 'Roboter1.en.csv',
-                    filter=response[1],
-                    initialFilter='Longtext (*.xlsx *.csv); Longtext (*.txt)'
-                    )
-                debug_print(str(response))
-                longtext.save_file(response[0])
-            else:
-                debug_print('abort')
-            #--------------------
     def merge_longtext(self):
-            pass
+        print('Merge Longtext')
         #--------------------
     def longtext_editor(self):
-            pass
+        print('Longtext Editor')
         #--------------------
+    def check_longtext(self):
+        print('Check Longtext')
     #-------------------- 
-    
-    #--------------------    
-    def declaration_system_ui(self,x_pos: int,y_pos: int):
-        self.longtext_name_box = QGroupBox('Declarationssystem',self)
-        self.longtext_name_box.setGeometry(x_pos,y_pos, 351, 71)
-
-        self.decl_typ = QComboBox(self)
-        self.decl_typ.setGeometry(x_pos+130,y_pos+20,110,21)
-        self.list_of_options = ['KUKA Standart','KIO Standart']
-        self.decl_typ.addItem('KUKA Standart') 
-        self.decl_typ.addItem('KIO Standart') 
-        self.decl_typ.currentIndexChanged.connect(self.set_decl_typ)
-
-        self.decl_typ_label = QLabel('Declarationssystem:',self)       
-        self.decl_typ_label.setGeometry(x_pos+10,y_pos+20,151,21)
-        self.decl_typ_info_label = QLabel('z.B. : GLOBAL SIGNAL BOVarName $OUT[2000]',self)       
-        self.decl_typ_info_label.setGeometry(x_pos+10,y_pos+40,301,21)   
-    def set_decl_typ(self,index: int):
-        info_text = {
-            0 : 'z.B. : GLOBAL SIGNAL BOVarName $OUT[2000]',
-            1 : 'z.B. : GLOBAL CONST INT BOVarName = 2000',    
-        }
-
-        self.decl_typ_info_label.setText(info_text[index])   
-    #--------------------
-
-    #--------------------
-    def longtext_name_ui(self,x_pos: int,y_pos: int):
-        self.longtext_name_box = QGroupBox('Langtext Name Einstellungen',self)
-        self.longtext_name_box.setGeometry(x_pos,y_pos, 351, 71)
-        #Longtextname Label
-        self.longtext_name_label = QLabel('Langtext Name:',self)       
-        self.longtext_name_label.setGeometry(x_pos+10,y_pos+20,91,21)
-        self.longtext_info_label = QLabel('Nicht erlaubte Zeichen: / * |',self)       
-        self.longtext_info_label.setGeometry(x_pos+10,y_pos+45,221,21)      
-        #Eingabe Feld fur langtext nahme
-        self.lontextname_edit = QLineEdit(self)
-        self.lontextname_edit.setGeometry(x_pos+95,y_pos+20,221,21)
-        self.lontextname_edit.setMaxLength(39)   
-        self.lontextname_edit.setClearButtonEnabled(True)   
-        self.lontextname_edit.setPlaceholderText('Roboter1.de')   
-    #--------------------
 
     #--------------------    
     def longtext_config_ui(self,x_pos: int,y_pos: int):
             self.list_of_lontext_config = []
 
-            self.longtext_confic_box = QGroupBox('Longtext Confi',self)
+            self.longtext_confic_box = QGroupBox('Longtext Config',self)
             self.longtext_confic_box.setGeometry(x_pos, y_pos,175,330)
             self.longtext_check_box = {}
             self.name_of_check_box = {
                 0:'without filters',
-                #10:'Timer',
-                #20:'Counter',
-                #30:'Flag s',
-                #40:'CYCFlag s',
                 #50:'Analogue Inputs',
                 #-50:'Analogue Outputs',
                 100:'Digital Inputs',
                 -100:'Digital Outputs',
                 200:'Grouped Inputs',
                 -200:'Grouped Outputs',
-                #300:'Integer Inputs',
-                #-300:'Integer Outputs',
-                #400:'Real Inputs',
-                #-400:'Real Outputs',
-                #500:'Char Inputs',
-                #-500:'Char Outputs',
                 }   
 
             x_pos += 10
@@ -285,7 +200,7 @@ class MainWindowLtG(QMainWindow):
             self.reset_all_butten.setEnabled(True)
             self.reset_all_butten.clicked.connect(self.reset_all)
     def select_all(self):
-        debug_print('Select All Butten = True')
+        print('Select All Butten = True')
         self.select_all_butten.setChecked(False)
         for key in  self.longtext_check_box:
             if key != 0:
@@ -293,13 +208,26 @@ class MainWindowLtG(QMainWindow):
         self.set_longtext_config()
         #
     def reset_all(self):
-        debug_print('ResetAllButten = True')
+        print('ResetAllButten = True')
         self.reset_all_butten.setChecked(False)
         for key in  self.longtext_check_box:
             self.longtext_check_box[key].setChecked(False)  
         self.set_longtext_config()
-        #            
+        #
+    def selection_rule(self):
+        pass 
+        #           
     def set_longtext_config(self):
+        if self.longtext_check_box[0].isChecked():
+            for key in  self.longtext_check_box:
+                if key != 0:
+                    self.longtext_check_box[key].setChecked(False)
+                    self.longtext_check_box[key].setCheckable(False)
+                    self.longtext_check_box[key].setEnabled(False)
+        else:
+            for key in self.longtext_check_box:
+                self.longtext_check_box[key].setCheckable(True)
+                self.longtext_check_box[key].setEnabled(True)
         for key in  self.longtext_check_box:
             if self.longtext_check_box[key].isChecked():
                 if not key in self.list_of_lontext_config:
@@ -307,7 +235,8 @@ class MainWindowLtG(QMainWindow):
             else:
                 if key in self.list_of_lontext_config:
                     self.list_of_lontext_config.remove(key)
-        # print_list(self.list_of_lontext_config)
+        
+
     #--------------------
 
     #--------------------
@@ -318,7 +247,7 @@ class MainWindowLtG(QMainWindow):
         #file_urls = []
         # QGroupBox erstellen
         #event.acceptProposedAction()
-        self.dat_import_box = QGroupBox('Importirte Dateien',self)
+        self.dat_import_box = QGroupBox('Imported Files',self)
         self.dat_import_box.setGeometry(x_pos,y_pos,205,330)
         self.dat_import_box.setLayout(boxlayout)   
         self.dat_import_box.setAcceptDrops(True) 
@@ -338,41 +267,37 @@ class MainWindowLtG(QMainWindow):
         self.clean_list_butten.clicked.connect(self.clear_list)
 
         self.list_of_file_viso = QListWidget(self)
-        #self.list_of_file_viso.acceptDrops()
-        #self.list_of_file_viso.setAcceptDrops(True)
+        self.list_of_file_viso.acceptDrops()
+        self.list_of_file_viso.setAcceptDrops(True)
         self.list_of_file_viso.setGeometry(x_pos+10,y_pos+20,185,265)
         self.list_of_file_viso.itemClicked.connect(self.clicked_list_event)
         #
-    def drag_enter_event(self,event):
-        debug_print('Dragevent')
+    def dragEnterEvent(self,event):
+        print('Dragevent')
         if event.mimeData().hasUrls():
             event.acceptProposedAction()
         else:
-            super().drag_enter_event(event)
+            super().dragEnterEvent(event)
         #--------------------    
-    def drop_event(self,event):
-        debug_print('Dorp Datei Event')
-
+    def dropEvent(self,event):
         file_urls = [url.toLocalFile() for url in event.mimeData().urls()]
-        print(file_urls)
-        for index in range(len(file_urls)):
-                if not file_urls in self.list_of_drops:
-                    self.list_of_drops.append(file_urls[index])
-        self.list_of_file_viso.clear()            
+        for file_url in file_urls:
+            if file_url not in self.list_of_drops:
+                self.list_of_drops.append(file_url)
+        self.list_of_file_viso.clear()
         self.list_of_files.clear()
-        for index in range(len(self.list_of_drops)):
-            self.list_of_file_viso.addItem(QListWidgetItem(self.list_of_drops[index]))
-            self.list_of_files.append(self.list_of_drops[index])
-
+        for file_url in self.list_of_drops:
+            self.list_of_file_viso.addItem(QListWidgetItem(file_url))
+            self.list_of_files.append(file_url)
         print_list(self.list_of_drops)
         #
     def clicked_list_event(self):
-        debug_print(self.list_of_file_viso.currentRow())
+        print(self.list_of_file_viso.currentRow())
         SelectedItem = self.list_of_file_viso.item(self.list_of_file_viso.currentRow()).text()
-        debug_print(SelectedItem)
-        debug_print('Click')           
+        print(SelectedItem)
+        print('Click')           
     def delete_item(self):
-        debug_print('DeleteItemButten = True')
+        print('DeleteItemButten = True')
         self.del_item_butten.setChecked(False)
         if len(self.list_of_file_viso) > 0:
             try:
@@ -383,66 +308,76 @@ class MainWindowLtG(QMainWindow):
         print_list(self.list_of_files)
         #du.printList(self.WindowListOfFiles)
     def clear_list(self):
-        debug_print('DeleteListButten = True')
+        print('DeleteListButten = True')
         self.clean_list_butten.setChecked(False)
         self.list_of_file_viso.clear()  
         self.list_of_files.clear() 
     #--------------------
 
     #--------------------
-    def text_options_ui(self,IPosX: int,IPosY: int):
+    def text_options_ui(self,pos_x: int,pos_y: int):
 
         self.other_options_box = QGroupBox('General settings',self)
-        self.other_options_box.setGeometry(IPosX,IPosY,351,190)
+        self.other_options_box.setGeometry(pos_x,pos_y,351,330)         
 
-        self.data_typ_label = QLabel('Datatyp:',self)       
-        self.data_typ_label.setGeometry(IPosX+10,IPosY+20,60,21)
-
-        self.data_typ = QComboBox(self)
-        self.data_typ.setGeometry(IPosX+70,IPosY+20,50,21)
-        self.data_typ.addItem('csv')
-        self.data_typ.addItem('txt')             
-
-        self.delete_var_macker = QCheckBox('BI,BO,GI... delete',self)
-        self.delete_var_macker.setGeometry(IPosX+10,IPosY+45,151,21)
+        self.delete_var_macker = QCheckBox('Delete Signal Markings (di,do,gi...)',self)
+        self.delete_var_macker.setGeometry(pos_x+10,pos_y+20,301,21)
         self.delete_var_macker.setCheckable(True)
-        self.delete_var_macker.setEnabled(True)
 
-        self.delete_all_empty_lines = QCheckBox('Create update Longtext ',self)
-        self.delete_all_empty_lines.setGeometry(IPosX+10,IPosY+65,201,21)
+        self.delete_all_empty_lines = QCheckBox('Create update Longtext (delete all empty lines)',self)
+        self.delete_all_empty_lines.setGeometry(pos_x+10,pos_y+40,301,21)
         self.delete_all_empty_lines.setCheckable(True)
-        self.delete_all_empty_lines.setEnabled(True)
-        self.delete_all_empty_lines_label = QLabel('(delete all empty lines)',self)
-        self.delete_all_empty_lines_label.setGeometry(IPosX+30,IPosY+85,301,21)
+
+        self.expanded_interfase = QCheckBox('expanded Interfase (8192 Input,8192 Output)',self)
+        self.expanded_interfase.setGeometry(pos_x+10,pos_y+60,301,21)
+        self.expanded_interfase.setCheckable(True)
+
+        self.export_log = QCheckBox('Export Log Dat',self)
+        self.export_log.setGeometry(pos_x+10,pos_y+80,301,21)
+        self.export_log.setCheckable(True)
     #--------------------  
           
     #-------------------- 
-    def go_back(self):
-        pass
-        # self.BackPushButten.setChecked(False)
-        # debug_print('AbortPushButten = True')
-        # self.close()  # Schlieen Sie das Fenster
-        # #QCoreApplication.quit()  
-        # # Beenden Sie die Anwendung
     def start_prozess(self):
         self.start_butten.setChecked(False)
-      
-        debug_print('StartPushButten = True')        
-        self.data = self.workdat.read()
-        self.data['longtextname'] = self.lontextname_edit.text()
-        self.data['list_of_files'] = self.list_of_files
-        self.data['list_of_longtext_config'] = self.list_of_lontext_config
-        self.data['delete_var_macker'] = self.delete_var_macker.isChecked()
-        self.data['data_typ'] = self.data_typ.currentIndex()
-        self.data['decl_typ'] = self.decl_typ.currentIndex()
-        self.data['delete_empty_lines'] = self.delete_all_empty_lines.isChecked()
-        self.workdat.write(self.data)
+        file_filter = 'Longtext (*.csv *.txt)'
+        response = QFileDialog.getSaveFileName(
+            parent=self,
+            caption='Select a data file',
+            directory= 'Longtext.csv',
+            filter=file_filter,
+            initialFilter='Longtext (*.csv *.txt)'
+            )
+        directory = response[0].replace(response[0].split('/')[-1],'')
+        file_name = response[0].split('/')[-1]
 
-        popup.show()   
+        print(directory)
+        if len(directory) > 0:
+            longtext = Longtext()
+            raw_longtext = Longtext()
+            longtext.create_template(self.expanded_interfase.isChecked())
+            raw_longtext.read_dat(self.list_of_files)
+            raw_longtext.scan_data()
+            longtext.merge(raw_longtext)
+            if self.delete_all_empty_lines.isChecked():
+                longtext.delete_empty_lines()
+            if self.delete_var_macker.isChecked():
+                pass
+            if self.export_log.isChecked():
+                longtext.check_for_double_declarations()
+                longtext.export_log(file_name,directory)
+            if (file_name[-4:] == '.Csv') or (file_name[-4:] == '.csv'.upper()) or (file_name[-4:] == '.csv'):
+                longtext.export_csv(file_name,directory)
+            elif (file_name[-4:] == '.Txt') or (file_name[-4:] == '.txt'.upper()) or (file_name[-4:] == '.txt'):
+                longtext.export_txt(file_name,directory)
+            else:
+                print('Error roong file format')
+        else:
+            print('abort')
+
     #-------------------- 
 
 app = QApplication([])
 window = MainWindowLtG()
-popup = StartAndSavePopUp('Save Longtext')
 window.show()
 app.exec()
