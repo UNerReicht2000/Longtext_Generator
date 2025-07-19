@@ -7,7 +7,6 @@ from core.kuka import Longtext
 from user_ui.main_ui import MainWindowLtG
 
 def __init__() -> None:
-    debug_print('init')
     pass
 
 
