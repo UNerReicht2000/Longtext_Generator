@@ -5,6 +5,8 @@ from dev_func import print_list
 
 from os import getcwd
 
+from dataclasses import dataclass
+
 from PyQt6.QtWidgets import QMainWindow
 from PyQt6.QtWidgets import QPushButton
 from PyQt6.QtWidgets import QGroupBox
@@ -20,10 +22,24 @@ from PyQt6.QtWidgets import QFileDialog
 
 from PyQt6.QtGui import QAction
 
+from PyQt6.QtCore import QSettings
+from PyQt6.QtCore import QStandardPaths
+
+from core.kuka import ScanMarkings
 from core.kuka import Longtext
 
 #from user_ui.ui_func import DragDropListWidget
 
+@dataclass
+class ScanMarkings:
+    aktiv: bool #if the markings are active
+    checkbox: QCheckBox #name of the marking for ui
+    type: str #input, multi input, output...
+    markings: tuple #di, do, gi, go, ai, ao
+    #ScanMarkings(aktiv = False,name = '',type = 'input',markings = ('do'))
+def __str__(self):
+    return f'ScanMarkings(name={self.checkbox.text()}, type={self.type}, markings={self.markings})'
+    #--------------------
 
 '''read my
     sort cuts
@@ -35,9 +51,11 @@ class MainWindowLtG(QMainWindow):
         super().__init__(parent)
         self.setAcceptDrops(True)
         
-
         self.list_of_files = []
         self.list_of_drops = []
+
+        self.settings = QSettings('DU Software','Langtext Generator')
+        self.default_directory = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DocumentsLocation)
 
         self.list_of_lontext_config = []
         self.setGeometry(300,300,773,403)
@@ -45,7 +63,6 @@ class MainWindowLtG(QMainWindow):
         self.setFixedSize(773,403)
         self.setWindowTitle('Langtext Generator')      
         
-
         x_pos = 590
         y_pos = 370
 
@@ -55,20 +72,20 @@ class MainWindowLtG(QMainWindow):
         self.start_butten.clicked.connect(self.start_prozess)
 
         self.menu_bar_ui()
-        self.longtext_config_ui(585,30)       
+        #self.longtext_config_ui(585,30)       
         self.file_import_ui(10,30)
-        self.text_options_ui(225,30)
+        self.general_options_ui(225,30)
         self.setAcceptDrops(True)
     #-------------------- 
     def menu_bar_ui(self):
         """menubar ui
         """
 
+        self.menu = self.menuBar()
+
         self.import_data_button = QAction('Import Dat', self)
         self.import_data_button.triggered.connect(self.get_file_names)
         self.import_data_button.setCheckable(True)
-
-        self.menu = self.menuBar()
 
         self.file_menu = self.menu.addMenu('&File')
         self.file_menu.addAction(self.import_data_button)
@@ -94,7 +111,6 @@ class MainWindowLtG(QMainWindow):
         self.tb_check_longtext.triggered.connect(self.check_longtext)
         self.tb_check_longtext.setCheckable(True)
 
-
         self.tool_menu = self.menu.addMenu('&Tools')
         self.tool_menu.addAction(self.tb_clen_longtext)
         self.tool_menu.addAction(self.tb_update_longtext)
@@ -103,8 +119,15 @@ class MainWindowLtG(QMainWindow):
         self.tool_menu.addSeparator()
         self.tool_menu.addAction(self.tb_check_longtext)
         self.tool_menu.addSeparator()
-        #self.tool_menu = self.menu.addMenu('&Settings')
+
+        self.tool_menu = self.menu.addMenu('&Settings')
         
+        self.tb_setup_markings = QAction('setup Prefixes', self)
+        self.tb_setup_markings.triggered.connect(self.setup_prefix)
+        self.tb_setup_markings.setCheckable(True)
+
+        self.tool_menu.addAction(self.tb_setup_markings)
+        self.tool_menu.addSeparator()
     #-------------------- 
 
     #-------------------- 
@@ -119,7 +142,7 @@ class MainWindowLtG(QMainWindow):
         response = QFileDialog.getOpenFileNames(
             parent = self,
             caption = 'Select file(s)',
-            directory = getcwd(),
+            directory = self.default_directory,
             filter = file_filter,
         )
         print(response[0])
@@ -158,86 +181,11 @@ class MainWindowLtG(QMainWindow):
         #--------------------
     def check_longtext(self):
         print('Check Longtext')
+
+    def setup_prefix(self):
+        print('Setup Prefix')
+        #
     #-------------------- 
-
-    #--------------------    
-    def longtext_config_ui(self,x_pos: int,y_pos: int):
-            self.list_of_lontext_config = []
-
-            self.longtext_confic_box = QGroupBox('Longtext Config',self)
-            self.longtext_confic_box.setGeometry(x_pos, y_pos,175,330)
-            self.longtext_check_box = {}
-            self.name_of_check_box = {
-                0:'without filters',
-                #50:'Analogue Inputs',
-                #-50:'Analogue Outputs',
-                100:'Digital Inputs',
-                -100:'Digital Outputs',
-                200:'Grouped Inputs',
-                -200:'Grouped Outputs',
-                }   
-
-            x_pos += 10
-            for key in self.name_of_check_box:
-                self.longtext_check_box.update({key:QCheckBox(self.name_of_check_box[key],self)})
-                y_pos += 20
-                self.longtext_check_box[key].setGeometry(x_pos,y_pos,150,21)
-                self.longtext_check_box[key].setCheckable(True)
-                self.longtext_check_box[key].setEnabled(True)
-                self.longtext_check_box[key].clicked.connect(self.set_longtext_config)
-             
-            #Select All PushButten
-            self.select_all_butten = QPushButton('All',self)
-            self.select_all_butten.setGeometry(x_pos,325,75,24)
-            self.select_all_butten.setCheckable(True)
-            self.select_all_butten.setEnabled(True)
-            self.select_all_butten.clicked.connect(self.select_all)
-
-            #Rest All PushButten
-            self.reset_all_butten = QPushButton('Reset',self)
-            self.reset_all_butten.setGeometry(x_pos+80,325,75,24)
-            self.reset_all_butten.setCheckable(True)
-            self.reset_all_butten.setEnabled(True)
-            self.reset_all_butten.clicked.connect(self.reset_all)
-    def select_all(self):
-        print('Select All Butten = True')
-        self.select_all_butten.setChecked(False)
-        for key in  self.longtext_check_box:
-            if key != 0:
-                self.longtext_check_box[key].setChecked(True)
-        self.set_longtext_config()
-        #
-    def reset_all(self):
-        print('ResetAllButten = True')
-        self.reset_all_butten.setChecked(False)
-        for key in  self.longtext_check_box:
-            self.longtext_check_box[key].setChecked(False)  
-        self.set_longtext_config()
-        #
-    def selection_rule(self):
-        pass 
-        #           
-    def set_longtext_config(self):
-        if self.longtext_check_box[0].isChecked():
-            for key in  self.longtext_check_box:
-                if key != 0:
-                    self.longtext_check_box[key].setChecked(False)
-                    self.longtext_check_box[key].setCheckable(False)
-                    self.longtext_check_box[key].setEnabled(False)
-        else:
-            for key in self.longtext_check_box:
-                self.longtext_check_box[key].setCheckable(True)
-                self.longtext_check_box[key].setEnabled(True)
-        for key in  self.longtext_check_box:
-            if self.longtext_check_box[key].isChecked():
-                if not key in self.list_of_lontext_config:
-                    self.list_of_lontext_config += [key]
-            else:
-                if key in self.list_of_lontext_config:
-                    self.list_of_lontext_config.remove(key)
-        
-
-    #--------------------
 
     #--------------------
     def file_import_ui(self,x_pos: int,y_pos: int):
@@ -315,12 +263,12 @@ class MainWindowLtG(QMainWindow):
     #--------------------
 
     #--------------------
-    def text_options_ui(self,pos_x: int,pos_y: int):
+    def general_options_ui(self,pos_x: int,pos_y: int):
 
         self.other_options_box = QGroupBox('General settings',self)
         self.other_options_box.setGeometry(pos_x,pos_y,351,330)         
 
-        self.delete_var_macker = QCheckBox('Delete Signal Markings (di,do,gi...)',self)
+        self.delete_var_macker = QCheckBox('Delete Signal Prefix (di,do,gi...)',self)
         self.delete_var_macker.setGeometry(pos_x+10,pos_y+20,301,21)
         self.delete_var_macker.setCheckable(True)
 
@@ -344,7 +292,7 @@ class MainWindowLtG(QMainWindow):
         response = QFileDialog.getSaveFileName(
             parent=self,
             caption='Select a data file',
-            directory= 'Longtext.csv',
+            directory= self.default_directory,
             filter=file_filter,
             initialFilter='Longtext (*.csv *.txt)'
             )
