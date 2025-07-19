@@ -1,21 +1,41 @@
 # -*- coding: utf-8 -*-
 from os import path
+from enum import Enum
 from dataclasses import dataclass
+from typing import Tuple
 from .longtext_func import extract_number
 from .longtext_func import validated_file_name
 
+class IoType(Enum):
+    INPUT = '$IN'
+    OUTPUT = '$OUT'
+    NOT_DEFINED = 'NOT_DEFINED'
+
 @dataclass
-class Markings:
-    aktiv: bool
-    singel: dict
-    multi: dict
+class Marking:
+    aktiv: bool#if the marking is active
+    name: str  #name of the marking for ui
+    io_type: IoType = None  #INPUT, OUTPUT
+    length: int = 0 
+    var_syktax: Tuple[str, ...] = () #var $IN[x],var $IN[x] TO $IN[x],var $ANIN[x]
+    var_prefix: Tuple[str, ...] = () #var di, DO #not use
+
+    def __str__(self):
+        return f'Marking(ui={self.name}, type={self.io_type}, length={self.length}, var_syktax={self.var_syktax}, var_präfix={self.var_prefix})'
     #--------------------
 
 class Longtext:
     def __init__(self):
         self.base_data = {}
         self.longtext = {}
-        self.var_markings = Markings(aktiv = False,singel = {'in':(''),'out':('')},multi = {'in':(''),'out':('')})
+        self.var_markings = [
+            Marking(aktiv = True,name = 'Digital Input',io_type = IoType.INPUT,length = 2,var_syktax = ('$in[','$In[','$IN['),var_prefix = ()),
+            Marking(aktiv = True,name = 'Digital Output',io_type = IoType.OUTPUT,length = 2,var_syktax = ('$out[','$Out[','$OUT['),var_prefix = ()),
+            Marking(aktiv = True,name = 'Analog Input',io_type = IoType.INPUT,length = 2,var_syktax = ('$anin[','$AnIn[','$ANIN['),var_prefix = ()),
+            Marking(aktiv = True,name = 'Analog Output',io_type = IoType.OUTPUT,length = 2,var_syktax = ('$anout[','$AnOut[','$ANOUT['),var_prefix = ()),
+            Marking(aktiv = True,name = 'Grouped Input',io_type = IoType.INPUT,length = 4, var_syktax = ('$in[','$In[','$IN['),var_prefix = ()),
+            Marking(aktiv = True,name = 'Grouped Output',io_type = IoType.OUTPUT,length = 4, var_syktax = ('$out[','$Out[','$OUT['),var_prefix = ())
+                             ]
         self.log_name = ''
         self.log = []
         #--------------------
@@ -23,6 +43,9 @@ class Longtext:
         return self.longtext
         #--------------------
     def create_template(self,expanded: bool = False):
+        if type(expanded) != bool:
+            raise TypeError('expanded must be a boolean')
+        
         self.longtext = {}
         if not expanded:
             longtext_items = {'$TIMER[': 60,'$COUNT_I[': 60,'$FLAG[': 999,'$CYC_FLAG[': 256,'$ANIN[': 32,'$ANOUT[': 32,'$IN[': 4096,'$OUT[': 4096}
@@ -33,26 +56,40 @@ class Longtext:
             for index in range(1,longtext_items[key]+1):
                 self.longtext[key+str(index)+']'] = []
         #--------------------
-    def impot_markings(self,markings: Markings):
-        self.var_markings = Markings
-        for item in markings.singel['in']:
-            self.var_markings.singel['in'] = markings.singel['in'] + (item.upper(),item.lower(),item.capitalize())
-        for item in markings.singel['out']:
-            self.var_markings.singel['out'] = markings.singel['out'] + (item.upper(),item.lower(),item.capitalize())
-        for item in markings.multi['in']:
-            self.var_markings.multi['in'] = markings.multi['in'] + (item.upper(),item.lower(),item.capitalize())
-        for item in markings.multi['out']:
-            self.var_markings.multi['out'] = markings.multi['out'] + (item.upper(),item.lower(),item.capitalize())
-        self.var_markings.aktiv = True
-        #--------------------
-    def clear_markings(self):
-        self.var_markings = Markings(aktiv = False,singel = {'in':(''),'out':('')},multi = {'in':(''),'out':('')})
+    def impot_prefix(self,markings: list):
+        """imports a the markings for the ui
+
+        Args:
+            markings (list[Marking]): list of markings to import
+        """
+        if not isinstance(markings, list):
+            raise TypeError('markings must be a list of Marking')
+        
+        if len(markings) != len(self.var_markings):
+            raise ValueError(f'Error: {len(markings)} markings were given, but {len(self.var_markings)} markings are expected')
+        
+        for marking in markings:
+            if not isinstance(marking, Marking):
+                raise TypeError(f'{marking} is not a Marking')
+            for prefix in marking.var_prefix:
+                if not prefix.isascii():
+                    raise ValueError(f'a non-ascii character was found. ({prefix})')       
+                elif prefix.isspace():
+                    raise ValueError(f'the prefix consists only of spaces.') 
+            
+        for marking in markings:
+            for index in range(len(self.var_markings)):
+                if self.var_markings[index].name == marking.name:
+                    self.var_markings[index].aktiv = marking.aktiv
+                    self.var_markings[index].var_prefix = marking.var_prefix
+
+            
         #--------------------
     def read_dat(self,files: list):
         """turns a list of files in to the base data
 
         Args:
-            files_list (list): list of files directory
+            files (list): list of files directory
         """
 
         result = {}
@@ -63,35 +100,64 @@ class Longtext:
                     data = importdat.read()
                     importdat.close()
                     result[files[index]] = data.split("\n")
+                else:
+                    self.log += [f'File {files[index]} not found']
+                    raise FileNotFoundError(f'File {files[index]} not found')
             self.base_data = result
         else:
             raise TypeError('files must be a list')
         #--------------------
-    def read_txt(self,files: list):
-        """turns a list of files in to the base data
+    def read_txt(self,file: str):
+        """turns a file in to the base data
 
         Args:
-            files_list (list): list of files directory
+            file (str): file directory
         """
-        pass
+        result = {}
+        if type(file) == str:
+            if path.exists(file):    
+                importdat = open(file,'r')
+                data = importdat.read()
+                importdat.close()
+                result[file] = data.split("\n")
+            else:
+                self.log += [f'File {file} not found']
+                raise FileNotFoundError(f'File {file} not found')    
+            self.base_data = result 
+        else:
+            raise TypeError('files must be a string')
         #--------------------
-    def read_csv(self,files: list):
-        """turns a list of files in to the base data
+    def read_csv(self,file: str):
+        """turns a file in to the base data
 
         Args:
-            files_list (list): list of files directory
+            file (str): file directory
         """
-        pass
+        result = {}
+        if type(file) == str:
+            if path.exists(file):    
+                importdat = open(file,'r')
+                data = importdat.read()
+                importdat.close()
+                result[file] = data.split("\n")
+            else:
+                self.log += [f'File {file} not found']
+                raise FileNotFoundError(f'File {file} not found')    
+            self.longtext = result 
+        else:
+            raise TypeError('files must be a string')
         #--------------------
-    def scan_data(self):
-        markings_in = ('$in[','$In[','$IN[')
-        markings_out = ('$out[','$Out[','$OUT[')
-
+    def scan_data(self,with_comments: bool = False):
+        """scans the base data for the variables and creates a dictionary with the variables as keys and the declarations as values
+        """
         for file in self.base_data:
             for line in range(len(self.base_data[file])):
-                self.base_data[file][line] = self.base_data[file][line].split(';')[0]
+                if not with_comments:
+                    self.base_data[file][line] = self.base_data[file][line].split(';')[0]
                 for item in ['Decl','Global','Const','Int','Signal','Bool','Defdat','Public','Enddat']:
                     self.base_data[file][line] = self.base_data[file][line].replace(item,'').replace(item.upper(),'').replace(item.lower(),'')
+                for item in ['To','=']:
+                    self.base_data[file][line] = self.base_data[file][line].replace(item,' ').replace(item.upper(),' ').replace(item.lower(),' ')
                 self.base_data[file][line] = self.base_data[file][line].strip()
 
             self.base_data[file] = [x for x in self.base_data[file] if x != '']
@@ -101,41 +167,47 @@ class Longtext:
                 self.base_data[file][line] = [x for x in self.base_data[file][line] if x != '']
             
             for line in range(len(self.base_data[file])):
-                if len(self.base_data[file][line]) == 1 and ((self.base_data[file][line][0].startswith(self.var_markings.singel['in']) or self.base_data[file][line][0].startswith(self.var_markings.singel['out']) and self.var_markings.aktiv)):
-                    print(self.base_data[file][line])
-                elif len(self.base_data[file][line]) == 2 and ((self.base_data[file][line][0].startswith(self.var_markings.singel['in']) or self.base_data[file][line][0].startswith(self.var_markings.singel['out']) and self.var_markings.aktiv)):
-                    if self.base_data[file][line][1] not in self.longtext:
-                        self.longtext[self.base_data[file][line][1]] = []
-                    self.longtext[self.base_data[file][line][1]] += [self.base_data[file][line][0]]
-                elif len(self.base_data[file][line]) == 3 and ((self.base_data[file][line][0].startswith(self.var_markings.singel['in']) or self.base_data[file][line][0].startswith(self.var_markings.singel['out']) and self.var_markings.aktiv)):
-                    #if self.base_data[file][line][1] not in self.longtext:
-                    #    self.longtext[self.base_data[file][line][1]] = []
-                    print(self.base_data[file][line])
-                elif len(self.base_data[file][line]) == 4 and ((self.base_data[file][line][0].startswith(self.var_markings.multi['in']) or self.base_data[file][line][0].startswith(self.var_markings.multi['out']) and self.var_markings.aktiv) or not self.var_markings.aktiv):
-                    start_point = extract_number(self.base_data[file][line][1])
-                    end_point = extract_number(self.base_data[file][line][3])
-                    if type(start_point) == int and type(end_point) == int:
-                        if self.base_data[file][line][1].startswith(markings_in) and self.base_data[file][line][3].startswith(markings_in):
-                            var_type = '$IN'
-                        elif self.base_data[file][line][1].startswith(markings_out) and self.base_data[file][line][3].startswith(markings_out):
-                            var_type = '$OUT'
-                        else:
-                            print(self.base_data[file][line])
-                            var_type = None
-                        if type(var_type) == str:
-                            sub_index = 0
-                            for index in range(start_point,end_point + 1):
-                                if var_type+'['+str(index)+']' not in self.longtext:
-                                    self.longtext[var_type+'['+str(index)+']'] = []
-                                self.longtext[var_type+'['+str(index)+']'] += [self.base_data[file][line][0] + ' 2**' + str(sub_index)]
-                                sub_index += 1
-                else:
-                    print(self.base_data[file][line])
+                print(self.base_data[file][line])
+                decl_len = len(self.base_data[file][line])
+                for marking in self.var_markings:
+                    if marking.aktiv:
+                        #not in use
+                        if decl_len == 0:
+                            exit
+                        #-----------------------------
 
-                markings = '$TIMER[','$COUNT_I[','$FLAG[','$CYC_FLAG[','$ANIN[','$ANOUT[','$IN[','$OUT['
-                keys_to_remove = [key for key in self.longtext if not key.startswith(markings)]
-                for key in keys_to_remove:
-                    del self.longtext[key]
+                        #single io
+                        elif decl_len == 2 and self.base_data[file][line][1].startswith(marking.var_syktax) and (not marking.var_prefix or self.base_data[file][line][0].startswith(marking.var_prefix)):
+                            #if self.base_data[file][line][0].startswith(marking.var_prefix) or not marking.var_prefix:
+                            if self.base_data[file][line][1] not in self.longtext:
+                                self.longtext[self.base_data[file][line][1].upper()] = []
+                            self.longtext[self.base_data[file][line][1].upper()] += [self.base_data[file][line][0]]
+                            if not marking.var_prefix:
+                                exit
+                        #-----------------------------
+
+                        #grouped io
+                        elif decl_len == 3 and (self.base_data[file][line][1].startswith(marking.var_syktax) and self.base_data[file][line][2].startswith(marking.var_syktax)) and (not marking.var_prefix or self.base_data[file][line][0].startswith(marking.var_prefix)):
+                            start_point = extract_number(self.base_data[file][line][1])
+                            end_point = extract_number(self.base_data[file][line][2])
+                            var_type = marking.io_type.value
+                            sub_index = 0
+
+                            if self.base_data[file][line][0].startswith(marking.var_prefix) or not marking.var_prefix:
+                                for index in range(start_point,end_point + 1):
+                                    if var_type+'['+str(index)+']' not in self.longtext:
+                                        self.longtext[var_type+'['+str(index)+']'] = []
+                                    self.longtext[var_type+'['+str(index)+']'] += [self.base_data[file][line][0] + ' 2**' + str(sub_index)]
+                                    sub_index += 1
+                            if not marking.var_prefix:
+                                exit
+                        #-----------------------------
+
+
+        markings = '$ANIN[','$ANOUT[','$IN[','$OUT['
+        keys_to_remove = [key for key in self.longtext if not key.startswith(markings)]
+        for key in keys_to_remove:
+            del self.longtext[key]
     def merge(self, other):
         if isinstance(other,Longtext):
             for key, value in other.longtext.items():
@@ -147,12 +219,17 @@ class Longtext:
         else:
             raise TypeError('only Longtext can be added')
         #--------------------
-    def delete_markings(self):
-        for key in self.longtext:
-            for value in self.longtext[key]:
-                if value.startswith('$'):
-                    self.longtext[key].remove(value)
-            self.longtext[key] = [x for x in value if not x.startswith('$')]
+    def delete_präfix(self):
+        """deletes the prefix (diTest -> Test)
+        """
+        for marking in self.var_markings:
+            for key in self.longtext:
+                if self.longtext[key]:
+                    for index in len(range(self.longtext[key])):
+                        self.longtext[key][index] = self.longtext[key][index].lstrip(marking.var_prefix)
+
+
+                       
     def delete_empty_lines(self):
         keys_to_remove = [key for key in self.longtext if self.longtext[key] == []]
         for key in keys_to_remove:
