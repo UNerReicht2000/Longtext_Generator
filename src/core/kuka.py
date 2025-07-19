@@ -65,17 +65,19 @@ class Longtext:
         if not isinstance(markings, list):
             raise TypeError('markings must be a list of Marking')
         
-        if len(markings) != len(self.var_markings):
-            raise ValueError(f'Error: {len(markings)} markings were given, but {len(self.var_markings)} markings are expected')
-        
         for marking in markings:
             if not isinstance(marking, Marking):
                 raise TypeError(f'{marking} is not a Marking')
+            if not marking.var_prefix:
+                continue
             for prefix in marking.var_prefix:
                 if not prefix.isascii():
                     raise ValueError(f'a non-ascii character was found. ({prefix})')       
                 elif prefix.isspace():
                     raise ValueError(f'the prefix consists only of spaces.') 
+                
+        if len(markings) != len(self.var_markings):
+            raise ValueError(f'Error: {len(markings)} markings were given, but {len(self.var_markings)} markings are expected')
             
         for marking in markings:
             for index in range(len(self.var_markings)):

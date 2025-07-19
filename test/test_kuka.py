@@ -54,9 +54,18 @@ def user_inputs():
                 ]
             case 3:
                 return [
-                    Marking(aktiv=True, name="Digital Input", var_prefix=(" ")),
-                    Marking(aktiv=True, name="Digital Output", var_prefix=(" ")),
-                    Marking(aktiv=True, name="Analog Input", var_prefix=(" ")),
+                    Marking(aktiv=True, name="Digital Input", var_prefix=("         ")),
+                    Marking(aktiv=True, name="Digital Output", var_prefix=("      ")),
+                    Marking(aktiv=True, name="Analog Input", var_prefix=("   ")),
+                    Marking(aktiv=True, name="Analog Output", var_prefix=(" ")),
+                    Marking(aktiv=True, name="Grouped Input", var_prefix=(" ")),
+                    Marking(aktiv=True, name="Grouped Output", var_prefix=(" ")),
+                ]
+            case 4:
+                return [
+                    Marking(aktiv=True, name="Digital Input", var_prefix=("     s")),
+                    Marking(aktiv=True, name="Digital Output", var_prefix=("    s")),
+                    Marking(aktiv=True, name="Analog Input", var_prefix=("      s")),
                     Marking(aktiv=True, name="Analog Output", var_prefix=(" ")),
                     Marking(aktiv=True, name="Grouped Input", var_prefix=(" ")),
                     Marking(aktiv=True, name="Grouped Output", var_prefix=(" ")),
@@ -96,23 +105,22 @@ def test_impot_prefix(user_inputs):
     for i in range(len(lt.var_markings)):
         assert len(lt.var_markings[i].var_prefix) == 2
         assert lt.var_markings[i].aktiv is True
-        assert lt.var_markings[i].name == user_inputs(1).name
+        assert lt.var_markings[i].name == user_inputs(1)[i].name
 
     lt.impot_prefix(user_inputs(2))
     for i in range(len(lt.var_markings)):
         assert len(lt.var_markings[i].var_prefix) == 0
         assert lt.var_markings[i].aktiv is True
         assert lt.var_markings[i].name == user_inputs(2)[i].name
-        
-    lt.impot_prefix(user_inputs(3))
 
-    for test_item in ['not a list',123,True,3.136,]:
+    for test_item in ["not a list", 123, True, 3.136, ["not a list"]]:
         with pytest.raises(TypeError):
-            lt.impot_prefix(test_item) 
-    for test_item in [['not a list'],]:
-        with pytest.raises(ValueError):
             lt.impot_prefix(test_item)
-            lt.impot_prefix(user_inputs(3))
+    with pytest.raises(ValueError):
+        lt.impot_prefix(user_inputs(3))
+    with pytest.raises(ValueError):
+        lt.impot_prefix(user_inputs(4))
+
 
 @pytest.fixture()
 def dat_files():
@@ -157,7 +165,6 @@ def dat_files():
 
     for file in files:
         files_names += [file.name]
-    print(files_names)
 
     for file in files:
         file.close()
@@ -185,7 +192,6 @@ def kuka_var_data():
     def _create_var_data(test_case):
         match test_case:
             case 10:
-                print("test Case 1")
                 prep_lt = Longtext()
                 dat_file_sampel = b"""
                     ;Test file template for KUKA Longtext
@@ -227,7 +233,6 @@ def kuka_var_data():
                 os_remove(file.name)
                 return prep_lt.base_data
             case 20:
-                print("test Case 2")
                 prep_lt = Longtext()
                 dat_file_sampel = b"""
                     ;Test file template for KUKA Longtext
@@ -283,4 +288,3 @@ def test_scan_dat(kuka_var_data):
     lt.base_data = kuka_var_data(10)
     lt.scan_data()
     assert len(lt.longtext) == 0
-    
