@@ -5,14 +5,19 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python Debugger: Current File with Arguments",
+            "name": "Python Test Debugger",
             "type": "debugpy",
             "request": "launch",
-            "program": "${main.py}",
             "console": "integratedTerminal",
-            "args": [
-                "${command:pickArgs}"
-            ]
+            "justMyCode": false,
+            "purpose": ["debug-test"]
+        },
+        {
+            "name": "Python Debugger: Current File",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
         }
     ]
 }
