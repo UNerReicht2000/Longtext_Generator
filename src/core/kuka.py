@@ -33,8 +33,8 @@ class Longtext:
             Marking(aktiv = True,name = 'Digital Output',io_type = IoType.OUTPUT,length = 2,var_syktax = ('$out[','$Out[','$OUT['),var_prefix = ()),
             Marking(aktiv = True,name = 'Analog Input',io_type = IoType.INPUT,length = 2,var_syktax = ('$anin[','$AnIn[','$ANIN['),var_prefix = ()),
             Marking(aktiv = True,name = 'Analog Output',io_type = IoType.OUTPUT,length = 2,var_syktax = ('$anout[','$AnOut[','$ANOUT['),var_prefix = ()),
-            Marking(aktiv = True,name = 'Grouped Input',io_type = IoType.INPUT,length = 4, var_syktax = ('$in[','$In[','$IN['),var_prefix = ()),
-            Marking(aktiv = True,name = 'Grouped Output',io_type = IoType.OUTPUT,length = 4, var_syktax = ('$out[','$Out[','$OUT['),var_prefix = ())
+            Marking(aktiv = True,name = 'Grouped Input',io_type = IoType.INPUT,length = 3, var_syktax = ('$in[','$In[','$IN['),var_prefix = ()),
+            Marking(aktiv = True,name = 'Grouped Output',io_type = IoType.OUTPUT,length = 3, var_syktax = ('$out[','$Out[','$OUT['),var_prefix = ())
                              ]
         self.log_name = ''
         self.log = []
@@ -168,43 +168,32 @@ class Longtext:
                 self.base_data[file][line] = self.base_data[file][line].split(' ')
                 self.base_data[file][line] = [x for x in self.base_data[file][line] if x != '']
             
-            for line in range(len(self.base_data[file])):
-                print(self.base_data[file][line])
-                decl_len = len(self.base_data[file][line])
+            for line in self.base_data[file]:
                 for marking in self.var_markings:
-                    if marking.aktiv:
-                        #not in use
-                        if decl_len == 0:
-                            exit
-                        #-----------------------------
+                    if not marking.aktiv:
+                        continue
 
-                        #single io
-                        elif decl_len == 2 and self.base_data[file][line][1].startswith(marking.var_syktax) and (not marking.var_prefix or self.base_data[file][line][0].startswith(marking.var_prefix)):
-                            #if self.base_data[file][line][0].startswith(marking.var_prefix) or not marking.var_prefix:
-                            if self.base_data[file][line][1] not in self.longtext:
-                                self.longtext[self.base_data[file][line][1].upper()] = []
-                            self.longtext[self.base_data[file][line][1].upper()] += [self.base_data[file][line][0]]
-                            if not marking.var_prefix:
-                                exit
-                        #-----------------------------
+                    elif len(line) == 0:
+                        continue
 
-                        #grouped io
-                        elif decl_len == 3 and (self.base_data[file][line][1].startswith(marking.var_syktax) and self.base_data[file][line][2].startswith(marking.var_syktax)) and (not marking.var_prefix or self.base_data[file][line][0].startswith(marking.var_prefix)):
-                            start_point = extract_number(self.base_data[file][line][1])
-                            end_point = extract_number(self.base_data[file][line][2])
-                            var_type = marking.io_type.value
-                            sub_index = 0
+                    #single io
+                    elif len(line) == 2 == marking.length and line[1].startswith(marking.var_syktax) and (not marking.var_prefix or line[0].startswith(marking.var_prefix)):
+                        if line[1] not in self.longtext:
+                            self.longtext[line[1].upper()] = []
+                        self.longtext[line[1].upper()] += [line[0]]
 
-                            if self.base_data[file][line][0].startswith(marking.var_prefix) or not marking.var_prefix:
-                                for index in range(start_point,end_point + 1):
-                                    if var_type+'['+str(index)+']' not in self.longtext:
-                                        self.longtext[var_type+'['+str(index)+']'] = []
-                                    self.longtext[var_type+'['+str(index)+']'] += [self.base_data[file][line][0] + ' 2**' + str(sub_index)]
-                                    sub_index += 1
-                            if not marking.var_prefix:
-                                exit
-                        #-----------------------------
-
+                    #grouped io
+                    elif len(line) == 3 == marking.length and (line[1].startswith(marking.var_syktax) and line[2].startswith(marking.var_syktax)) and (not marking.var_prefix or line[0].startswith(marking.var_prefix)):
+                        start_point = extract_number(line[1])
+                        end_point = extract_number(line[2])
+                        var_type = marking.io_type.value
+                        sub_index = 0
+                        
+                        for index in range(start_point,end_point + 1):
+                            if var_type+'['+str(index)+']' not in self.longtext:
+                                self.longtext[var_type+'['+str(index)+']'] = []
+                            self.longtext[var_type+'['+str(index)+']'] += [line[0] + ' 2**' + str(sub_index)]
+                            sub_index += 1
 
         markings = '$ANIN[','$ANOUT[','$IN[','$OUT['
         keys_to_remove = [key for key in self.longtext if not key.startswith(markings)]
