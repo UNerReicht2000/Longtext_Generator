@@ -154,8 +154,9 @@ class Longtext:
         """
         for file in self.base_data:
             for line in range(len(self.base_data[file])):
-                if not with_comments:
-                    self.base_data[file][line] = self.base_data[file][line].split(';')[0]
+                if with_comments:
+                    self.base_data[file][line] = self.base_data[file][line].lstrip().lstrip(';')
+                self.base_data[file][line] = self.base_data[file][line].split(';')[0]
                 for item in ['Decl','Global','Const','Int','Signal','Bool','Defdat','Public','Enddat']:
                     self.base_data[file][line] = self.base_data[file][line].replace(item,'').replace(item.upper(),'').replace(item.lower(),'')
                 for item in ['To','=']:
