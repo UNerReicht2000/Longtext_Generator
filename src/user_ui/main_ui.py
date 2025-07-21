@@ -1,11 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from dev_func import debug_print
-from dev_func import print_list
-
 from os import getcwd
-
-from dataclasses import dataclass
 
 from PyQt6.QtWidgets import QMainWindow
 from PyQt6.QtWidgets import QPushButton
@@ -25,21 +20,10 @@ from PyQt6.QtGui import QAction
 from PyQt6.QtCore import QSettings
 from PyQt6.QtCore import QStandardPaths
 
-from core.kuka import ScanMarkings
+from core.kuka import Marking
 from core.kuka import Longtext
 
 #from user_ui.ui_func import DragDropListWidget
-
-@dataclass
-class ScanMarkings:
-    aktiv: bool #if the markings are active
-    checkbox: QCheckBox #name of the marking for ui
-    type: str #input, multi input, output...
-    markings: tuple #di, do, gi, go, ai, ao
-    #ScanMarkings(aktiv = False,name = '',type = 'input',markings = ('do'))
-def __str__(self):
-    return f'ScanMarkings(name={self.checkbox.text()}, type={self.type}, markings={self.markings})'
-    #--------------------
 
 '''read my
     sort cuts
@@ -71,10 +55,10 @@ class MainWindowLtG(QMainWindow):
         self.start_butten.setCheckable(True)
         self.start_butten.clicked.connect(self.start_prozess)
 
-        self.menu_bar_ui()
-        #self.longtext_config_ui(585,30)       
+        self.menu_bar_ui()       
         self.file_import_ui(10,30)
         self.general_options_ui(225,30)
+        self.longtext_settings_ui(585,30)
         self.setAcceptDrops(True)
     #-------------------- 
     def menu_bar_ui(self):
@@ -237,7 +221,7 @@ class MainWindowLtG(QMainWindow):
         for file_url in self.list_of_drops:
             self.list_of_file_viso.addItem(QListWidgetItem(file_url))
             self.list_of_files.append(file_url)
-        print_list(self.list_of_drops)
+        print(self.list_of_drops)
         #
     def clicked_list_event(self):
         print(self.list_of_file_viso.currentRow())
@@ -253,7 +237,7 @@ class MainWindowLtG(QMainWindow):
                 self.list_of_files.pop(self.list_of_file_viso.currentRow())
             except:
                 pass
-        print_list(self.list_of_files)
+        print(self.list_of_files)
         #du.printList(self.WindowListOfFiles)
     def clear_list(self):
         print('DeleteListButten = True')
@@ -263,29 +247,59 @@ class MainWindowLtG(QMainWindow):
     #--------------------
 
     #--------------------
-    def general_options_ui(self,pos_x: int,pos_y: int):
+    def general_options_ui(self,x_pos: int,y_pos: int):
 
         self.other_options_box = QGroupBox('General settings',self)
-        self.other_options_box.setGeometry(pos_x,pos_y,351,330)         
+        self.other_options_box.setGeometry(x_pos,y_pos,351,330)         
 
         self.delete_var_macker = QCheckBox('Delete Signal Prefix (di,do,gi...)',self)
-        self.delete_var_macker.setGeometry(pos_x+10,pos_y+20,301,21)
+        self.delete_var_macker.setGeometry(x_pos+10,y_pos+20,301,21)
         self.delete_var_macker.setCheckable(True)
 
         self.delete_all_empty_lines = QCheckBox('Create update Longtext (delete all empty lines)',self)
-        self.delete_all_empty_lines.setGeometry(pos_x+10,pos_y+40,301,21)
+        self.delete_all_empty_lines.setGeometry(x_pos+10,y_pos+40,301,21)
         self.delete_all_empty_lines.setCheckable(True)
 
         self.expanded_interfase = QCheckBox('expanded Interfase (8192 Input,8192 Output)',self)
-        self.expanded_interfase.setGeometry(pos_x+10,pos_y+60,301,21)
+        self.expanded_interfase.setGeometry(x_pos+10,y_pos+60,301,21)
         self.expanded_interfase.setCheckable(True)
 
         self.export_log = QCheckBox('Export Log Dat',self)
-        self.export_log.setGeometry(pos_x+10,pos_y+80,301,21)
+        self.export_log.setGeometry(x_pos+10,y_pos+80,301,21)
         self.export_log.setCheckable(True)
-    #--------------------  
-          
-    #-------------------- 
+
+    def longtext_settings_ui(self,x_pos,y_pos):
+        self.lt_config_box = QGroupBox('Longtext settings',self)
+        self.lt_config_box.setGeometry(x_pos,y_pos,181,330) 
+        #Select All PushButten
+        self.select_all_butten = QPushButton('All',self)
+        self.select_all_butten.setGeometry(x_pos,325,75,24)
+        self.select_all_butten.setCheckable(True)
+        self.select_all_butten.setEnabled(True)
+        self.select_all_butten.clicked.connect(self.select_all)
+
+        #Rest All PushButten
+        self.reset_all_butten = QPushButton('Reset',self)
+        self.reset_all_butten.setGeometry(x_pos+80,325,75,24)
+        self.reset_all_butten.setCheckable(True)
+        self.reset_all_butten.setEnabled(True)
+        self.reset_all_butten.clicked.connect(self.reset_all)
+    def select_all(self):
+        print('Select All Butten = True')
+        return
+        self.select_all_butten.setChecked(False)
+        for key in  self.longtext_check_box:
+            self.longtext_check_box[key].setChecked(True)
+        self.set_longtext_config()
+        #
+    def reset_all(self):
+        print('ResetAllButten = True')
+        return
+        self.reset_all_butten.setChecked(False)
+        for key in  self.longtext_check_box:
+            self.longtext_check_box[key].setChecked(False)  
+        self.set_longtext_config()
+        #    
     def start_prozess(self):
         self.start_butten.setChecked(False)
         file_filter = 'Longtext (*.csv *.txt)'
@@ -319,7 +333,7 @@ class MainWindowLtG(QMainWindow):
             elif (file_name[-4:] == '.Txt') or (file_name[-4:] == '.txt'.upper()) or (file_name[-4:] == '.txt'):
                 longtext.export_txt(file_name,directory)
             else:
-                print('Error roong file format')
+                print('Error wrong file format')
         else:
             print('abort')
 
