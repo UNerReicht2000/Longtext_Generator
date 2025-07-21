@@ -65,9 +65,18 @@ def user_inputs():
                     Marking(aktiv=True, name="Digital Input", var_prefix=("     s")),
                     Marking(aktiv=True, name="Digital Output", var_prefix=("    s")),
                     Marking(aktiv=True, name="Analog Input", var_prefix=("      s")),
-                    Marking(aktiv=True, name="Analog Output", var_prefix=(" ")),
-                    Marking(aktiv=True, name="Grouped Input", var_prefix=(" ")),
-                    Marking(aktiv=True, name="Grouped Output", var_prefix=(" ")),
+                    Marking(aktiv=True, name="Analog Output", var_prefix=(" s")),
+                    Marking(aktiv=True, name="Grouped Input", var_prefix=(" s")),
+                    Marking(aktiv=True, name="Grouped Output", var_prefix=(" s")),
+                ]
+            case 5:
+                return [
+                    Marking(aktiv=True, name="Digital Input", var_prefix=("ö")),
+                    Marking(aktiv=True, name="Digital Output", var_prefix=()),
+                    Marking(aktiv=True, name="Analog Input", var_prefix=()),
+                    Marking(aktiv=True, name="Analog Output", var_prefix=()),
+                    Marking(aktiv=True, name="Grouped Input", var_prefix=()),
+                    Marking(aktiv=True, name="Grouped Output", var_prefix=()),
                 ]
             
     return created_user_inputs
