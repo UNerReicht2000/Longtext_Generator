@@ -91,7 +91,15 @@ def user_inputs():
                     Marking(aktiv=True, name="Grouped Input", var_prefix=("gi")),
                     Marking(aktiv=True, name="Grouped Output", var_prefix=("go")),
                 ]
-            
+            case 30:
+                return [
+                    Marking(aktiv=True, name="Digital Input", var_prefix=("di")),
+                    Marking(aktiv=True, name="Digital Output", var_prefix=("do")),
+                    Marking(aktiv=False, name="Analog Input", var_prefix=("ai")),
+                    Marking(aktiv=False, name="Analog Output", var_prefix=("ao")),
+                    Marking(aktiv=True, name="Grouped Input", var_prefix=("gi")),
+                    Marking(aktiv=True, name="Grouped Output", var_prefix=("go")),
+                ]
     return _created_user_inputs
 
 @pytest.fixture(scope="module")
@@ -173,13 +181,40 @@ def kuka_var_data():
                     
                     GLOBAL SIGNAL go_test_group_output_1 = $OUT[9] TO $OUT[10]
                     GLOBAL SIGNAL go_test_group_output_2=$OUT[11] TO $OUT[12]
-                    GLOBAL SIGNAL test_group_output_3=$IN[13] TO $IN[14]
-                    ;GLOBAL SIGNAL go_test_group_output_4=$IN[15] TO $IN[16]
+                    GLOBAL SIGNAL test_group_output_3=$OUT[13] TO $OUT[14]
+                    ;GLOBAL SIGNAL go_test_group_output_4=$OUT[15] TO $OUT[16]
 
                     GLOBAL SIGNAL ao_test_anout_1 = $ANOUT[1]
                     GLOBAL SIGNAL ao_test_anout_2=$ANOUT[2]
-                    GLOBAL SIGNAL test_anout_3=$ANIN[3]
-                    ;GLOBAL SIGNAL ai_test_anout_4=$ANIN[4]
+                    GLOBAL SIGNAL test_anout_3=$ANOUT[3]
+                    ;GLOBAL SIGNAL ao_test_anout_4=$ANOUT[4]
+                    """
+                file = TemporaryFile(
+                    prefix="dat_file_", suffix=".dat", mode="w+b", delete_on_close=False
+                )
+                file.write(dat_file_sampel)
+                file.seek(0)
+                file.close()
+                prep_lt.read_dat([file.name])
+                os_remove(file.name)
+                return prep_lt.base_data
+            case 30:
+                prep_lt = Longtext()
+                dat_file_sampel = b"""
+                    ;Test file template for KUKA Longtext
+                    GLOBAL SIGNAL di_test_input_1 = $IN[1]
+                    GLOBAL SIGNAL di_test_input_2=$OUT[2]
+                    
+                    GLOBAL SIGNAL gi_test_group_input_1 = $IN[9] TO $IN[10]
+                    GLOBAL SIGNAL gi_test_group_input_2=$OUT[11] TO $OUT[12]
+                    GLOBAL SIGNAL gi_test_group_input_3=$IN[13] TO $OUT[14]
+
+                    GLOBAL SIGNAL do_test_output_1 = $OUT[1]
+                    GLOBAL SIGNAL do_test_output_2=$IN[2]
+                    
+                    GLOBAL SIGNAL go_test_group_output_1 = $OUT[9] TO $OUT[10]
+                    GLOBAL SIGNAL go_test_group_output_2=$OUT[11] TO $OUT[12]
+                    GLOBAL SIGNAL go_test_group_output_3=$IN[13] TO $OUT[14]
                     """
                 file = TemporaryFile(
                     prefix="dat_file_", suffix=".dat", mode="w+b", delete_on_close=False
@@ -220,7 +255,7 @@ def test_without_prefix(user_inputs,kuka_var_data):
     lt.base_data = kuka_var_data(10)
     lt.scan_data()
     assert len(lt.longtext) == 16
-    for i in range(1,9):
+    for i in [1,2,3,4,5,6,7,8]:
         assert f'$IN[{i}]' in lt.longtext
         assert f'$OUT[{i}]' in lt.longtext
     
@@ -231,7 +266,7 @@ def test_without_prefix(user_inputs,kuka_var_data):
     for key in lt.log_name:
         print(f'{key}:{lt.longtext[key]}')
     assert len(lt.longtext) == 4
-    for i in range(1,3):
+    for i in [1,2]:
         assert f'$ANIN[{i}]' in lt.longtext
         assert f'$ANOUT[{i}]' in lt.longtext
     
@@ -240,7 +275,7 @@ def test_without_prefix(user_inputs,kuka_var_data):
     lt.base_data = kuka_var_data(10)
     lt.scan_data()
     assert len(lt.longtext) == 32
-    for i in range(9,25):
+    for i in [9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24]:
         assert f'$IN[{i}]' in lt.longtext
         assert f'$OUT[{i}]' in lt.longtext
 
@@ -250,7 +285,7 @@ def test_with_prefix(user_inputs,kuka_var_data):
     lt.base_data = kuka_var_data(20)
     lt.scan_data()
     assert len(lt.longtext) == 12
-    for i in range(1,7):
+    for i in [1,2,3,4,5,6]:
         assert f'$IN[{i}]' in lt.longtext
         assert f'$OUT[{i}]' in lt.longtext
     
@@ -259,7 +294,7 @@ def test_with_prefix(user_inputs,kuka_var_data):
     lt.base_data = kuka_var_data(20)
     lt.scan_data()
     assert len(lt.longtext) == 4
-    for i in range(1,3):
+    for i in [1,2]:
         assert f'$ANIN[{i}]' in lt.longtext
         assert f'$ANOUT[{i}]' in lt.longtext
     
@@ -271,7 +306,7 @@ def test_with_prefix(user_inputs,kuka_var_data):
     #    print(f'{key}:{lt.longtext[key]}')
     assert len(lt.longtext) == 4*2
     
-    for i in range(9,13):
+    for i in [9,10,11,12]:
         assert f'$IN[{i}]' in lt.longtext
         assert f'$OUT[{i}]' in lt.longtext
 
@@ -281,7 +316,7 @@ def test_with_comments(user_inputs,kuka_var_data):
     lt.base_data = kuka_var_data(20)
     lt.scan_data(True)
     assert len(lt.longtext) == 14
-    for i in range(1,7):
+    for i in [1,2,3,4,5,6,8]:
         assert f'$IN[{i}]' in lt.longtext
         assert f'$OUT[{i}]' in lt.longtext
     
@@ -290,7 +325,7 @@ def test_with_comments(user_inputs,kuka_var_data):
     lt.base_data = kuka_var_data(20)
     lt.scan_data(True)
     assert len(lt.longtext) == 6
-    for i in range(1,3):
+    for i in [1,2,4]:
         assert f'$ANIN[{i}]' in lt.longtext
         assert f'$ANOUT[{i}]' in lt.longtext
     
@@ -298,10 +333,17 @@ def test_with_comments(user_inputs,kuka_var_data):
     lt.impot_prefix(user_inputs(22))
     lt.base_data = kuka_var_data(20)
     lt.scan_data(True)
-    #for key in lt.longtext:
-    #    print(f'{key}:{lt.longtext[key]}')
     assert len(lt.longtext) == 6*2
-    
-    for i in range(9,13):
+    for i in [9,10,11,12,15,16]:
+        assert f'$IN[{i}]' in lt.longtext
+        assert f'$OUT[{i}]' in lt.longtext
+        
+def test_wrong_decl(user_inputs,kuka_var_data):
+    lt = Longtext()
+    lt.impot_prefix(user_inputs(30))
+    lt.base_data = kuka_var_data(30)
+    lt.scan_data(True)
+    assert len(lt.longtext) == 8
+    for i in [1,9,10]:
         assert f'$IN[{i}]' in lt.longtext
         assert f'$OUT[{i}]' in lt.longtext
