@@ -16,7 +16,7 @@
             "name": "Python Debugger: Current File",
             "type": "debugpy",
             "request": "launch",
-            "program": "${file}",
+            "program": "src\\main.py",
             "console": "integratedTerminal"
         }
     ]
