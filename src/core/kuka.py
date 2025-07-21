@@ -199,6 +199,7 @@ class Longtext:
         keys_to_remove = [key for key in self.longtext if not key.startswith(markings)]
         for key in keys_to_remove:
             del self.longtext[key]
+            
     def merge(self, other):
         if isinstance(other,Longtext):
             for key, value in other.longtext.items():

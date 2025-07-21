@@ -10,42 +10,6 @@ from src.core.kuka import Marking
 def user_inputs():
     def _created_user_inputs(test_case):
         match test_case:
-            case 1:
-                return [
-                    Marking(aktiv=True, name="Digital Input", var_prefix=("di", "Di")),
-                    Marking(aktiv=True, name="Digital Output", var_prefix=("di", "Di")),
-                    Marking(aktiv=True, name="Analog Input", var_prefix=("di", "Di")),
-                    Marking(aktiv=True, name="Analog Output", var_prefix=("di", "Di")),
-                    Marking(aktiv=True, name="Grouped Input", var_prefix=("di", "Di")),
-                    Marking(aktiv=True, name="Grouped Output", var_prefix=("go", "Go")),
-                ]
-            case 2:
-                return [
-                    Marking(aktiv=True, name="Digital Input", var_prefix=()),
-                    Marking(aktiv=True, name="Digital Output", var_prefix=()),
-                    Marking(aktiv=True, name="Analog Input", var_prefix=()),
-                    Marking(aktiv=True, name="Analog Output", var_prefix=()),
-                    Marking(aktiv=True, name="Grouped Input", var_prefix=()),
-                    Marking(aktiv=True, name="Grouped Output", var_prefix=()),
-                ]
-            case 3:
-                return [
-                    Marking(aktiv=True, name="Digital Input", var_prefix=("         ")),
-                    Marking(aktiv=True, name="Digital Output", var_prefix=("      ")),
-                    Marking(aktiv=True, name="Analog Input", var_prefix=("   ")),
-                    Marking(aktiv=True, name="Analog Output", var_prefix=(" ")),
-                    Marking(aktiv=True, name="Grouped Input", var_prefix=(" ")),
-                    Marking(aktiv=True, name="Grouped Output", var_prefix=(" ")),
-                ]
-            case 4:
-                return [
-                    Marking(aktiv=True, name="Digital Input", var_prefix=("     s")),
-                    Marking(aktiv=True, name="Digital Output", var_prefix=("    s")),
-                    Marking(aktiv=True, name="Analog Input", var_prefix=("      s")),
-                    Marking(aktiv=True, name="Analog Output", var_prefix=(" ")),
-                    Marking(aktiv=True, name="Grouped Input", var_prefix=(" ")),
-                    Marking(aktiv=True, name="Grouped Output", var_prefix=(" ")),
-                ]
             case 10:
                 return [
                     Marking(aktiv=True, name="Digital Input", var_prefix=()),
@@ -264,7 +228,9 @@ def test_without_prefix(user_inputs,kuka_var_data):
     lt.impot_prefix(user_inputs(14))
     lt.base_data = kuka_var_data(10)
     lt.scan_data()
-    assert len(lt.longtext) == 2
+    for key in lt.log_name:
+        print(f'{key}:{lt.longtext[key]}')
+    assert len(lt.longtext) == 4
     for i in range(1,3):
         assert f'$ANIN[{i}]' in lt.longtext
         assert f'$ANOUT[{i}]' in lt.longtext
@@ -283,8 +249,8 @@ def test_with_prefix(user_inputs,kuka_var_data):
     lt.impot_prefix(user_inputs(20))
     lt.base_data = kuka_var_data(20)
     lt.scan_data()
-    assert len(lt.longtext) == 14
-    for i in range(1,8):
+    assert len(lt.longtext) == 12
+    for i in range(1,7):
         assert f'$IN[{i}]' in lt.longtext
         assert f'$OUT[{i}]' in lt.longtext
     
@@ -301,7 +267,41 @@ def test_with_prefix(user_inputs,kuka_var_data):
     lt.impot_prefix(user_inputs(22))
     lt.base_data = kuka_var_data(20)
     lt.scan_data()
-    assert len(lt.longtext) == 4
-    for i in range(9,17):
+    #for key in lt.longtext:
+    #    print(f'{key}:{lt.longtext[key]}')
+    assert len(lt.longtext) == 4*2
+    
+    for i in range(9,13):
+        assert f'$IN[{i}]' in lt.longtext
+        assert f'$OUT[{i}]' in lt.longtext
+
+def test_with_comments(user_inputs,kuka_var_data):
+    lt = Longtext()
+    lt.impot_prefix(user_inputs(20))
+    lt.base_data = kuka_var_data(20)
+    lt.scan_data(True)
+    assert len(lt.longtext) == 14
+    for i in range(1,7):
+        assert f'$IN[{i}]' in lt.longtext
+        assert f'$OUT[{i}]' in lt.longtext
+    
+    lt = Longtext()
+    lt.impot_prefix(user_inputs(21))
+    lt.base_data = kuka_var_data(20)
+    lt.scan_data(True)
+    assert len(lt.longtext) == 6
+    for i in range(1,3):
+        assert f'$ANIN[{i}]' in lt.longtext
+        assert f'$ANOUT[{i}]' in lt.longtext
+    
+    lt = Longtext()
+    lt.impot_prefix(user_inputs(22))
+    lt.base_data = kuka_var_data(20)
+    lt.scan_data(True)
+    #for key in lt.longtext:
+    #    print(f'{key}:{lt.longtext[key]}')
+    assert len(lt.longtext) == 6*2
+    
+    for i in range(9,13):
         assert f'$IN[{i}]' in lt.longtext
         assert f'$OUT[{i}]' in lt.longtext
