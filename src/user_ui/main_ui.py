@@ -6,14 +6,13 @@ from PyQt6.QtWidgets import QMainWindow
 from PyQt6.QtWidgets import QPushButton
 from PyQt6.QtWidgets import QGroupBox
 from PyQt6.QtWidgets import QLabel
-from PyQt6.QtWidgets import QComboBox
-from PyQt6.QtWidgets import QLineEdit
 from PyQt6.QtWidgets import QCheckBox
 from PyQt6.QtWidgets import QVBoxLayout
 from PyQt6.QtWidgets import QListWidget
 from PyQt6.QtWidgets import QListWidgetItem
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtWidgets import QFileDialog
+from PyQt6.QtWidgets import QDialogButtonBox
 
 from PyQt6.QtGui import QAction
 
@@ -59,8 +58,7 @@ class MainWindowLtG(QMainWindow):
         self.file_import_ui(10,30)
         self.general_options_ui(225,30)
         self.longtext_settings_ui(585,30)
-        self.setAcceptDrops(True)
-    #-------------------- 
+
     def menu_bar_ui(self):
         """menubar ui
         """
@@ -109,18 +107,20 @@ class MainWindowLtG(QMainWindow):
         self.tb_setup_markings = QAction('setup Prefixes', self)
         self.tb_setup_markings.triggered.connect(self.setup_prefix)
         self.tb_setup_markings.setCheckable(True)
+        
+        self.tb_info = QAction('Info', self)
+        self.tb_info.triggered.connect(self.show_info)
+        self.tb_info.setCheckable(True)
 
         self.tool_menu.addAction(self.tb_setup_markings)
         self.tool_menu.addSeparator()
-    #-------------------- 
+        self.tool_menu.addAction(self.tb_info)
+        self.tool_menu.addSeparator()
 
-    #-------------------- 
     def get_file_names(self):
         """get file names for import in the prozess
         """
-        #--------------------
         self.import_data_button.setChecked(False)
-        #--------------------
         file_filter = 'Dat File (*.dat)'
         #file_filter = 'Dat File (*.xlsx *.csv *.dat);; Excel File (*.xlsx *.xls);; Image File (*.png *.jpg)'
         response = QFileDialog.getOpenFileNames(
@@ -135,14 +135,14 @@ class MainWindowLtG(QMainWindow):
         for index in range(len(response[0])):
             self.list_of_file_viso.addItem(QListWidgetItem(response[0][index]))
             self.list_of_files.append(response[0][index])
-        #--------------------
+
     def clean_longtext(self):
         """get file names for import in the prozess
         """
         #longtext = LongtextTools()
-        #--------------------
+
         self.tb_clen_longtext.setChecked(False)
-        #--------------------
+
         file_filter = 'Longtext (*.csv);; Longtext (*.txt)'
         response = QFileDialog.getOpenFileName(
             parent=self,
@@ -156,22 +156,38 @@ class MainWindowLtG(QMainWindow):
         """get file names for import in the prozess
         """
         print('Delete Empty Lines')
-        #--------------------
+
     def merge_longtext(self):
         print('Merge Longtext')
-        #--------------------
+
     def longtext_editor(self):
         print('Longtext Editor')
-        #--------------------
+
     def check_longtext(self):
         print('Check Longtext')
 
     def setup_prefix(self):
         print('Setup Prefix')
-        #
-    #-------------------- 
 
-    #--------------------
+    def show_info(self):
+        print('show Info')
+        self.setWindowTitle("Info")
+
+        QBtn = (
+            QDialogButtonBox.StandardButton.Close
+        )
+
+        self.buttonBox = QDialogButtonBox(QBtn)
+        self.buttonBox.c
+        #self.buttonBox.rejected.connect(self.reject)
+
+        layout = QVBoxLayout()
+        message = QLabel("""
+                    Longtext Generator
+                    Version: V1.0.0.1 (pre Relase)""")
+        layout.addWidget(message)
+        layout.addWidget(self.buttonBox)
+        self.setLayout(layout)
     def file_import_ui(self,x_pos: int,y_pos: int):
         
         boxlayout = QVBoxLayout()
@@ -203,14 +219,14 @@ class MainWindowLtG(QMainWindow):
         self.list_of_file_viso.setAcceptDrops(True)
         self.list_of_file_viso.setGeometry(x_pos+10,y_pos+20,185,265)
         self.list_of_file_viso.itemClicked.connect(self.clicked_list_event)
-        #
+
     def dragEnterEvent(self,event):
         print('Dragevent')
         if event.mimeData().hasUrls():
             event.acceptProposedAction()
         else:
             super().dragEnterEvent(event)
-        #--------------------    
+
     def dropEvent(self,event):
         file_urls = [url.toLocalFile() for url in event.mimeData().urls()]
         for file_url in file_urls:
@@ -222,7 +238,7 @@ class MainWindowLtG(QMainWindow):
             self.list_of_file_viso.addItem(QListWidgetItem(file_url))
             self.list_of_files.append(file_url)
         print(self.list_of_drops)
-        #
+
     def clicked_list_event(self):
         print(self.list_of_file_viso.currentRow())
         SelectedItem = self.list_of_file_viso.item(self.list_of_file_viso.currentRow()).text()
@@ -244,9 +260,7 @@ class MainWindowLtG(QMainWindow):
         self.clean_list_butten.setChecked(False)
         self.list_of_file_viso.clear()  
         self.list_of_files.clear() 
-    #--------------------
 
-    #--------------------
     def general_options_ui(self,x_pos: int,y_pos: int):
 
         self.other_options_box = QGroupBox('General settings',self)
@@ -336,8 +350,6 @@ class MainWindowLtG(QMainWindow):
                 print('Error wrong file format')
         else:
             print('abort')
-
-    #-------------------- 
 
 app = QApplication([])
 window = MainWindowLtG()
