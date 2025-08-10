@@ -83,13 +83,13 @@ def user_inputs():
 
 def test_impot_prefix(user_inputs):
     lt = Longtext()
-    lt.impot_prefix(user_inputs(1))
+    lt.impot_settings(user_inputs(1))
     for i in range(len(lt.var_markings)):
         assert len(lt.var_markings[i].var_prefix) == 2
         assert lt.var_markings[i].aktiv is True
         assert lt.var_markings[i].name == user_inputs(1)[i].name
 
-    lt.impot_prefix(user_inputs(2))
+    lt.impot_settings(user_inputs(2))
     for i in range(len(lt.var_markings)):
         assert len(lt.var_markings[i].var_prefix) == 0
         assert lt.var_markings[i].aktiv is True
@@ -97,10 +97,10 @@ def test_impot_prefix(user_inputs):
 
     for test_item in ["not a list", 123, True, 3.136, ["not a list"]]:
         with pytest.raises(TypeError):
-            lt.impot_prefix(test_item)
+            lt.impot_settings(test_item)
     with pytest.raises(ValueError):
-        lt.impot_prefix(user_inputs(3))
-        lt.impot_prefix(user_inputs(4))
+        lt.impot_settings(user_inputs(3))
+        lt.impot_settings(user_inputs(4))
 
 @pytest.fixture()
 def dat_files():

@@ -229,7 +229,7 @@ def kuka_var_data():
 
 def test_basic_fct(user_inputs,kuka_var_data):
     lt = Longtext()
-    lt.impot_prefix(user_inputs(10))
+    lt.impot_settings(user_inputs(10))
     lt.base_data = kuka_var_data(10)
     lt.scan_data()
     #for key in lt.longtext:
@@ -244,14 +244,14 @@ def test_basic_fct(user_inputs,kuka_var_data):
 
 def test_without_prefix(user_inputs,kuka_var_data):  
     lt = Longtext()
-    lt.impot_prefix(user_inputs(11))
+    lt.impot_settings(user_inputs(11))
     lt.base_data = kuka_var_data(10)
     lt.scan_data()
     assert not lt.longtext
     assert len(lt.longtext) == 0
     
     lt = Longtext()
-    lt.impot_prefix(user_inputs(13))
+    lt.impot_settings(user_inputs(13))
     lt.base_data = kuka_var_data(10)
     lt.scan_data()
     assert len(lt.longtext) == 16
@@ -260,7 +260,7 @@ def test_without_prefix(user_inputs,kuka_var_data):
         assert f'$OUT[{i}]' in lt.longtext
     
     lt = Longtext()
-    lt.impot_prefix(user_inputs(14))
+    lt.impot_settings(user_inputs(14))
     lt.base_data = kuka_var_data(10)
     lt.scan_data()
     for key in lt.log_name:
@@ -271,7 +271,7 @@ def test_without_prefix(user_inputs,kuka_var_data):
         assert f'$ANOUT[{i}]' in lt.longtext
     
     lt = Longtext()
-    lt.impot_prefix(user_inputs(15))
+    lt.impot_settings(user_inputs(15))
     lt.base_data = kuka_var_data(10)
     lt.scan_data()
     assert len(lt.longtext) == 32
@@ -281,7 +281,7 @@ def test_without_prefix(user_inputs,kuka_var_data):
 
 def test_with_prefix(user_inputs,kuka_var_data):
     lt = Longtext()
-    lt.impot_prefix(user_inputs(20))
+    lt.impot_settings(user_inputs(20))
     lt.base_data = kuka_var_data(20)
     lt.scan_data()
     assert len(lt.longtext) == 12
@@ -290,7 +290,7 @@ def test_with_prefix(user_inputs,kuka_var_data):
         assert f'$OUT[{i}]' in lt.longtext
     
     lt = Longtext()
-    lt.impot_prefix(user_inputs(21))
+    lt.impot_settings(user_inputs(21))
     lt.base_data = kuka_var_data(20)
     lt.scan_data()
     assert len(lt.longtext) == 4
@@ -299,7 +299,7 @@ def test_with_prefix(user_inputs,kuka_var_data):
         assert f'$ANOUT[{i}]' in lt.longtext
     
     lt = Longtext()
-    lt.impot_prefix(user_inputs(22))
+    lt.impot_settings(user_inputs(22))
     lt.base_data = kuka_var_data(20)
     lt.scan_data()
     #for key in lt.longtext:
@@ -312,7 +312,7 @@ def test_with_prefix(user_inputs,kuka_var_data):
 
 def test_with_comments(user_inputs,kuka_var_data):
     lt = Longtext()
-    lt.impot_prefix(user_inputs(20))
+    lt.impot_settings(user_inputs(20))
     lt.base_data = kuka_var_data(20)
     lt.scan_data(True)
     assert len(lt.longtext) == 14
@@ -321,7 +321,7 @@ def test_with_comments(user_inputs,kuka_var_data):
         assert f'$OUT[{i}]' in lt.longtext
     
     lt = Longtext()
-    lt.impot_prefix(user_inputs(21))
+    lt.impot_settings(user_inputs(21))
     lt.base_data = kuka_var_data(20)
     lt.scan_data(True)
     assert len(lt.longtext) == 6
@@ -330,7 +330,7 @@ def test_with_comments(user_inputs,kuka_var_data):
         assert f'$ANOUT[{i}]' in lt.longtext
     
     lt = Longtext()
-    lt.impot_prefix(user_inputs(22))
+    lt.impot_settings(user_inputs(22))
     lt.base_data = kuka_var_data(20)
     lt.scan_data(True)
     assert len(lt.longtext) == 6*2
@@ -340,7 +340,7 @@ def test_with_comments(user_inputs,kuka_var_data):
         
 def test_wrong_decl(user_inputs,kuka_var_data):
     lt = Longtext()
-    lt.impot_prefix(user_inputs(30))
+    lt.impot_settings(user_inputs(30))
     lt.base_data = kuka_var_data(30)
     lt.scan_data(True)
     assert len(lt.longtext) == 8
