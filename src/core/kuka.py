@@ -22,7 +22,6 @@ class Marking:
 
     def __str__(self):
         return f'Marking(ui={self.name}, type={self.io_type}, length={self.length}, var_syktax={self.var_syktax}, var_präfix={self.var_prefix})'
-    #--------------------
 
 class Longtext:
     def __init__(self):
@@ -38,10 +37,10 @@ class Longtext:
                              ]
         self.log_name = ''
         self.log = []
-        #--------------------
+
     def __call__(self):
         return self.longtext
-        #--------------------
+
     def create_template(self,expanded: bool = False):
         if type(expanded) != bool:
             raise TypeError('expanded must be a boolean')
@@ -55,8 +54,8 @@ class Longtext:
         for key in longtext_items:
             for index in range(1,longtext_items[key]+1):
                 self.longtext[key+str(index)+']'] = []
-        #--------------------
-    def impot_prefix(self,markings: list):
+
+    def impot_settings(self,markings: list):
         """imports a the markings for the ui
 
         Args:
@@ -85,8 +84,6 @@ class Longtext:
                     self.var_markings[index].aktiv = marking.aktiv
                     self.var_markings[index].var_prefix = marking.var_prefix
 
-            
-        #--------------------
     def read_dat(self,files: list):
         """turns a list of files in to the base data
 
@@ -108,7 +105,7 @@ class Longtext:
             self.base_data = result
         else:
             raise TypeError('files must be a list')
-        #--------------------
+
     def read_txt(self,file: str):
         """turns a file in to the base data
 
@@ -128,7 +125,7 @@ class Longtext:
             self.base_data = result 
         else:
             raise TypeError('files must be a string')
-        #--------------------
+
     def read_csv(self,file: str):
         """turns a file in to the base data
 
@@ -148,7 +145,7 @@ class Longtext:
             self.longtext = result 
         else:
             raise TypeError('files must be a string')
-        #--------------------
+
     def scan_data(self,with_comments: bool = False):
         """scans the base data for the variables and creates a dictionary with the variables as keys and the declarations as values
         """
@@ -203,15 +200,14 @@ class Longtext:
             
     def merge(self, other):
         if isinstance(other,Longtext):
-            for key, value in other.longtext.items():
-                if key in self.longtext:
-                    self.longtext[key].extend(value)
-                else:
-                    self.longtext[key] = value
-            return self.longtext
-        else:
             raise TypeError('only Longtext can be added')
-        #--------------------
+        for key, value in other.longtext.items():
+            if key in self.longtext:
+                self.longtext[key].extend(value)
+            else:
+                self.longtext[key] = value
+        return self.longtext
+
     def delete_präfix(self):
         """deletes the prefix (diTest -> Test)
         """
@@ -220,17 +216,15 @@ class Longtext:
                 if self.longtext[key]:
                     for index in len(range(self.longtext[key])):
                         self.longtext[key][index] = self.longtext[key][index].lstrip(marking.var_prefix)
-
-
-                       
+            
     def delete_empty_lines(self):
         keys_to_remove = [key for key in self.longtext if self.longtext[key] == []]
         for key in keys_to_remove:
             del self.longtext[key]
-        #----------------
+
     def check_for_errors(self):
         pass
-        #----------------
+
     def check_for_double_declarations(self):
         self.log += ['Double declarations:']
         count = 0
@@ -241,7 +235,7 @@ class Longtext:
                 print(error)
                 self.log += [error]
         self.log += [f'{count} Double declarations were found']
-        #
+
     def export_csv(self,file_name: str,directory: str):
         if type(directory) == str:   
             final_file_name = validated_file_name(file_name)
@@ -262,7 +256,7 @@ class Longtext:
             file.close()
         else:
             raise TypeError('directory must be a string')
-        #--------------------
+
     def export_txt(self,file_name: str,directory: str):
         if type(directory) == str:   
             final_file_name = validated_file_name(file_name)
@@ -282,7 +276,7 @@ class Longtext:
             file.close()
         else:
             raise TypeError('directory must be a string')
-        #--------------------
+
     def export_log(self,file_name: str,directory: str):
         line = ''
         for line in self.log:
@@ -306,4 +300,3 @@ class Longtext:
             file.close()
         else:
             raise TypeError('directory must be a string')
-        #-------------------- 
