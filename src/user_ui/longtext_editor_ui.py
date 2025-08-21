@@ -14,7 +14,7 @@ from PyQt6.QtWidgets import QApplication
 from PyQt6.QtWidgets import QFileDialog
 
 
-class longtext_editor(QMainWindow):
+class longtext_editor(QWidget):
     def __init__(self):
         super().__init__()
       

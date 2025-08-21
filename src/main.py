@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from core.kuka import Longtext
-from user_ui.main_ui import MainWindowLtG
+from user_ui.main_ui import MainUi
 
 if __name__ == '__main__':
-    ui = MainWindowLtG()
+    ui = MainUi()
