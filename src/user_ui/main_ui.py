@@ -28,8 +28,6 @@ from core.kuka import Longtext
 
 from settings_ui import PrefixSettings
 
-#from user_ui.ui_func import DragDropListWidget
-
 '''read my
     sort cuts
         LtG = Longtextgenerator
@@ -40,12 +38,20 @@ class InfoDialog(QDialog):
         super().__init__()
 
         self.setWindowTitle("Info")
-
-        layout = QVBoxLayout()
+        self.setFixedSize(300, 200)
         info_text = QLabel("""
                     Longtext Generator
-                    Version: V1.0.0.1 (pre Relase)""")
+                    
+                    (c) 2024 by DU Software
+                    
+                    Version: V1.0.0.1 (Pre Relase)
+                    Date: 2025-08-20
+                    """)
+        self.buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
+        self.buttons.rejected.connect(self.close)
+        layout = QVBoxLayout()
         layout.addWidget(info_text)
+        layout.addWidget(self.buttons)
         self.setLayout(layout)
 
 class MainUi(QMainWindow):
@@ -53,14 +59,14 @@ class MainUi(QMainWindow):
         super().__init__(parent)
         self.setGeometry(300, 100, 800, 450)
         self.setWindowTitle('Longtext Generator')
-        self.setMaximumSize(1000, 10000)
+        self.setMaximumSize(1000, 800)
         
         self.default_directory = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DocumentsLocation)
 
         self.buttens = QDialogButtonBox(QDialogButtonBox.StandardButton.Apply)
         self.buttens.accepted.connect(self.start_prozess)
         
-        
+        self.prefix_settings = PrefixSettings()
         self.core_ui = CoreUi(self)
         
         self.setCentralWidget(self.core_ui)
