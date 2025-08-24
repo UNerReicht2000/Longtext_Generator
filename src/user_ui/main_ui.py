@@ -1,32 +1,28 @@
 # -*- coding: utf-8 -*-
 from os import getcwd
 
-from PyQt6.QtWidgets import QMainWindow
-from PyQt6.QtWidgets import QPushButton
-from PyQt6.QtWidgets import QGroupBox
-from PyQt6.QtWidgets import QLabel
-from PyQt6.QtWidgets import QCheckBox
-
-from PyQt6.QtWidgets import QListWidget
-from PyQt6.QtWidgets import QListWidgetItem
-from PyQt6.QtWidgets import QApplication
-from PyQt6.QtWidgets import QFileDialog
-from PyQt6.QtWidgets import QWidget
-from PyQt6.QtWidgets import QFormLayout
-from PyQt6.QtWidgets import QGridLayout
-from PyQt6.QtWidgets import QVBoxLayout
-
-from PyQt6.QtWidgets import QDialog
-from PyQt6.QtWidgets import QDialogButtonBox
+from PyQt6.QtWidgets import (
+    QApplication,
+    QCheckBox,
+    QDialog,
+    QDialogButtonBox,
+    QFileDialog,
+    QGridLayout,
+    QGroupBox,
+    QLabel,
+    QListWidget,
+    QListWidgetItem,
+    QMainWindow,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
+)
 
 from PyQt6.QtGui import QAction
-
-from PyQt6.QtCore import QSettings
-from PyQt6.QtCore import QStandardPaths
+from PyQt6.QtCore import QSettings, QStandardPaths
 
 from core.kuka import Longtext
-
-from settings_ui import PrefixSettings
+from user_ui.settings_ui import PrefixSettings
 
 '''read my
     sort cuts
@@ -63,8 +59,9 @@ class MainUi(QMainWindow):
         
         self.default_directory = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DocumentsLocation)
 
-        self.buttens = QDialogButtonBox(QDialogButtonBox.StandardButton.Apply)
-        self.buttens.accepted.connect(self.start_prozess)
+        self.apply_btn = QDialogButtonBox(QDialogButtonBox.StandardButton.Apply)
+        #self.apply_btn.accepted.connect(self.start_prozess)
+        self.apply_btn.clicked.connect(self.start_prozess)
         
         self.prefix_settings = PrefixSettings()
         self.core_ui = CoreUi(self)
@@ -88,14 +85,14 @@ class MainUi(QMainWindow):
         self.update_longtext_btn = QAction('Delete Empty Lines', self)
         self.update_longtext_btn.triggered.connect(self.delete_empty_lines_in_longtext)
         self.update_longtext_btn.setCheckable(True)
-        #merge
+
         self.merge_longtext_btn = QAction('merge Longtext', self)
-        #self.merge_longtext.triggered.connect(dummy_prog)
+        #self.merge_longtext.triggered.connect()
         self.merge_longtext_btn.setCheckable(True)
-        #edit
-        self.longtext_editor_btn = QAction('Longtext Editor', self)
-        #self.merge_longtext.triggered.connect(dummy_prog)
-        self.longtext_editor_btn.setCheckable(True)
+
+        #self.longtext_editor_btn = QAction('Longtext Editor', self)
+        #self.merge_longtext.triggered.connect()
+        #self.longtext_editor_btn.setCheckable(True)
 
         self.check_longtext_btn = QAction('Check Longtext', self)
         self.check_longtext_btn.triggered.connect(self.check_longtext)
@@ -105,7 +102,7 @@ class MainUi(QMainWindow):
         self.tool_menu.addAction(self.clen_longtext_btn)
         self.tool_menu.addAction(self.update_longtext_btn)
         self.tool_menu.addAction(self.merge_longtext_btn)
-        self.tool_menu.addAction(self.longtext_editor_btn)
+        #self.tool_menu.addAction(self.longtext_editor_btn)
         self.tool_menu.addSeparator()
         self.tool_menu.addAction(self.check_longtext_btn)
         self.tool_menu.addSeparator()
@@ -181,18 +178,17 @@ class MainUi(QMainWindow):
         self.check_longtext_btn.setChecked(False)
 
     def setup_prefix(self):
-        print('Setup Prefix')
         self.setup_markings_btn.setChecked(False)
         self.prefix_settings.show()
 
     def show_info(self):
-        print('show Info')
         info_page = InfoDialog()
         info_page.exec()
         self.info_btn.setChecked(False)
 
     def start_prozess(self):
-        self.start_btn.setChecked(False)
+        print('Start Prozess')
+        self.apply_btn.setChecked(False)
         file_filter = 'Longtext (*.csv *.txt)'
         response = QFileDialog.getSaveFileName(
             parent=self,
@@ -372,12 +368,12 @@ class PrefixSelection(QGroupBox):
             line += 1
         #Select All PushButten
         layout.addStretch()
-        self.select_all_btn = QPushButton('All')
+        self.select_all_btn = QPushButton('Select All')
         self.select_all_btn.clicked.connect(self.select_all)
         layout.addWidget(self.select_all_btn)
 
         #Rest All PushButten
-        self.reset_all_btn = QPushButton('Reset',self)
+        self.reset_all_btn = QPushButton('Reset All',self)
         self.reset_all_btn.clicked.connect(self.reset_all)
         layout.addWidget(self.reset_all_btn)
         
