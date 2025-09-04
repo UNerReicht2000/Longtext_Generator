@@ -8,9 +8,11 @@
 
 - Automated generation of longtexts from KUKA KRL sources code.
 - Flexible editing and customization of texts
-- Support for .dat files
-- User-friendly interface with checkboxes, lists, and selection fields
+- All common text files are supported for import (.dat, .txt, .csv, ...)
+- User-friendly interface 
+- Longtext-Tool's
 
 ### Target Audience
 
 This project is intended for engineers, technicians, and developers working wiht KUKA Robots
+
