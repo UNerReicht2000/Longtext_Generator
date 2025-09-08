@@ -2,7 +2,7 @@
 
 import pytest
 from os import remove as os_remove
-from tempfile import TemporaryFile
+from tempfile import NamedTemporaryFile
 from src.core.kuka import Longtext
 from src.core.kuka import Marking
 
@@ -138,7 +138,7 @@ def kuka_var_data():
                     GLOBAL SIGNAL test_anout_1 = $ANOUT[1]
                     GLOBAL SIGNAL test_anout_2=$ANOUT[2]
                     """
-                file = TemporaryFile(
+                file = NamedTemporaryFile(
                     prefix="dat_file_", suffix=".dat", mode="w+b", delete_on_close=False
                 )
                 file.write(dat_file_sampel)
@@ -189,7 +189,7 @@ def kuka_var_data():
                     GLOBAL SIGNAL test_anout_3=$ANOUT[3]
                     ;GLOBAL SIGNAL ao_test_anout_4=$ANOUT[4]
                     """
-                file = TemporaryFile(
+                file = NamedTemporaryFile(
                     prefix="dat_file_", suffix=".dat", mode="w+b", delete_on_close=False
                 )
                 file.write(dat_file_sampel)
@@ -216,7 +216,7 @@ def kuka_var_data():
                     GLOBAL SIGNAL go_test_group_output_2=$OUT[11] TO $OUT[12]
                     GLOBAL SIGNAL go_test_group_output_3=$IN[13] TO $OUT[14]
                     """
-                file = TemporaryFile(
+                file = NamedTemporaryFile(
                     prefix="dat_file_", suffix=".dat", mode="w+b", delete_on_close=False
                 )
                 file.write(dat_file_sampel)

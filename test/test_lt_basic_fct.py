@@ -2,7 +2,7 @@
 
 import pytest
 from os import remove as os_remove
-from tempfile import TemporaryFile
+from tempfile import NamedTemporaryFile
 from src.core.kuka import Longtext
 from src.core.kuka import Marking
 
@@ -108,7 +108,7 @@ def dat_files():
     files = []
 
     for i in range(2):
-        files += [TemporaryFile(prefix ='dat_file_', suffix='.dat', mode='w+b',delete_on_close=False)]
+        files += [NamedTemporaryFile(prefix ='dat_file_', suffix='.dat', mode='w+b',delete_on_close=False)]
         files[i].write(dat_file_sampel)
         files[i].seek(0)
 
