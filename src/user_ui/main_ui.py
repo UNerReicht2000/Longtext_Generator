@@ -106,21 +106,21 @@ class MainUi(QMainWindow):
 
         self.merge_longtext_btn = QAction('merge Longtext', self)
         #self.merge_longtext.triggered.connect()
-        self.merge_longtext_btn.setCheckable(True)
+        self.merge_longtext_btn.setCheckable(False)
 
-        #self.longtext_editor_btn = QAction('Longtext Editor', self)
+        self.longtext_editor_btn = QAction('Longtext Editor', self)
         #self.merge_longtext.triggered.connect()
-        #self.longtext_editor_btn.setCheckable(True)
+        self.longtext_editor_btn.setCheckable(False)
 
         self.check_longtext_btn = QAction('Check Longtext', self)
         self.check_longtext_btn.triggered.connect(self.check_longtext)
-        self.check_longtext_btn.setCheckable(True)
+        self.check_longtext_btn.setCheckable(False)
 
         self.tool_menu = self.menu_bar.addMenu('&Tools')
         self.tool_menu.addAction(self.clen_longtext_btn)
         self.tool_menu.addAction(self.update_longtext_btn)
         self.tool_menu.addAction(self.merge_longtext_btn)
-        #self.tool_menu.addAction(self.longtext_editor_btn)
+        self.tool_menu.addAction(self.longtext_editor_btn)
         self.tool_menu.addSeparator()
         self.tool_menu.addAction(self.check_longtext_btn)
         self.tool_menu.addSeparator()
@@ -159,7 +159,7 @@ class MainUi(QMainWindow):
         print(len(response[0]))
         #if not len(response[0] == 0):
         for index in range(len(response[0])):
-            self.core_ui.file_handling.list_of_files.addItem(QListWidgetItem(response[0][index]))
+            self.core_ui.file_handling.ui_files.addItem(QListWidgetItem(response[0][index]))
             #self.core_ui.file_handling.list_of_files.append(response[0][index])
 
     def clean_longtext(self):
@@ -251,9 +251,6 @@ class CoreUi(QWidget):
         super().__init__(parent)
         layout = QGridLayout()
         self.setLayout(layout)
-
-        self.list_of_files = []
-        self.list_of_drops = []
         
         self.longtext_settings = Longtext().var_markings
 
@@ -278,6 +275,9 @@ class FileHandling(QGroupBox):
     def __init__(self, parent=None):
         super().__init__(parent=None)
         
+        self.files = []
+        self.list_of_drops = []
+        
         self.setTitle('File Handling')
         self.setMinimumWidth(200)
         
@@ -293,14 +293,14 @@ class FileHandling(QGroupBox):
         self.clean_list_btn.setEnabled(True)
         self.clean_list_btn.clicked.connect(self.clear_list)
 
-        self.list_of_files = QListWidget(self)
-        self.list_of_files.acceptDrops()
-        self.list_of_files.itemClicked.connect(self.clicked_list_event)
+        self.ui_files = QListWidget(self)
+        self.ui_files.acceptDrops()
+        self.ui_files.itemClicked.connect(self.clicked_list_event)
         
         layout = QVBoxLayout()
         self.setLayout(layout)
         
-        layout.addWidget(self.list_of_files)
+        layout.addWidget(self.ui_files)
         layout.addWidget(self.del_item_btn)
         layout.addWidget(self.clean_list_btn)
 
@@ -312,35 +312,36 @@ class FileHandling(QGroupBox):
             super().dragEnterEvent(event)
 
     def dropEvent(self,event):
+        print('DropEvent')
         file_urls = [url.toLocalFile() for url in event.mimeData().urls()]
         for file_url in file_urls:
             if file_url not in self.list_of_drops:
                 self.list_of_drops.append(file_url)
-        self.list_of_files.clear()
-        self.list_of_files.clear()
+        self.ui_files.clear()
+        self.files.clear()
         for file_url in self.list_of_drops:
-            self.list_of_files.addItem(QListWidgetItem(file_url))
-            self.list_of_files.append(file_url)
+            self.ui_files.addItem(QListWidgetItem(file_url))
+            self.files.append(file_url)
         print(self.list_of_drops)
 
     def clicked_list_event(self):
-        SelectedItem = self.list_of_files.item(self.list_of_files.currentRow()).text()           
+        SelectedItem = self.ui_files.item(self.ui_files.currentRow()).text()           
     def delete_item(self):
         print('DeleteItemButten = True')
         self.del_item_btn.setChecked(False)
-        if len(self.list_of_files) > 0:
+        if len(self.ui_files) > 0:
             try:
-                self.list_of_files.takeItem(self.list_of_files.currentRow())
-                self.list_of_files.pop(self.list_of_files.currentRow())
+                self.ui_files.takeItem(self.ui_files.currentRow())
+                self.files.pop(self.ui_files.currentRow())
             except:
                 pass
-        print(self.list_of_files)
+        print(self.files)
         #du.printList(self.WindowListOfFiles)
     def clear_list(self):
         print('DeleteListButten = True')
         self.clean_list_btn.setChecked(False)
-        self.list_of_files.clear()  
-        self.list_of_files.clear() 
+        self.ui_files.clear()  
+        self.files.clear() 
    
 class GeneralSettings(QGroupBox):
     def __init__(self, parent=None):
