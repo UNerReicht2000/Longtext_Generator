@@ -17,17 +17,25 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 # --------------------------------------------------------------------
-from PyQt6.QtWidgets import QWidget
-from PyQt6.QtWidgets import QVBoxLayout
-from PyQt6.QtWidgets import QTableWidget
-from PyQt6.QtWidgets import QTableWidgetItem
-from PyQt6.QtWidgets import QDialogButtonBox
+import os
+import json
+
+from PyQt6.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QTableWidget,
+    QTableWidgetItem,
+    QDialogButtonBox,
+)
 
 from PyQt6.QtCore import Qt
 
 from core.kuka import Longtext
 
-from PyQt6.QtWidgets import QApplication
+#from PyQt6.QtWidgets import QApplication #only for testing
+
+PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+CONFIG_PATH = os.path.join(PROJECT_DIR, "longtext_config.json")
 
 class PrefixSettings(QWidget):
     def __init__(self, parent=None):
