@@ -78,7 +78,7 @@ class MainUi(QMainWindow):
         self.default_directory = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DocumentsLocation)
 
         self.apply_btn = QDialogButtonBox(QDialogButtonBox.StandardButton.Apply)
-        #self.apply_btn.accepted.connect(self.start_prozess)
+        self.apply_btn.accepted.connect(self.start_prozess)
         self.apply_btn.clicked.connect(self.start_prozess)
         
         self.prefix_settings = PrefixSettings()
@@ -86,16 +86,16 @@ class MainUi(QMainWindow):
         
         self.setCentralWidget(self.core_ui)
 
-        self.menu = self.menuBar()
+        self.menu_bar = self.menuBar()
 
         self.import_data_btn = QAction('Import Dat', self)
         self.import_data_btn.triggered.connect(self.get_file_names)
         self.import_data_btn.setCheckable(True)
 
-        self.file_menu = self.menu.addMenu('&File')
+        self.file_menu = self.menu_bar.addMenu('&File')
         self.file_menu.addAction(self.import_data_btn)
         self.file_menu.addSeparator()
-
+        
         self.clen_longtext_btn = QAction('Clean Longtext', self)
         self.clen_longtext_btn.triggered.connect(self.clean_longtext)
         self.clen_longtext_btn.setCheckable(True)
@@ -116,7 +116,7 @@ class MainUi(QMainWindow):
         self.check_longtext_btn.triggered.connect(self.check_longtext)
         self.check_longtext_btn.setCheckable(True)
 
-        self.tool_menu = self.menu.addMenu('&Tools')
+        self.tool_menu = self.menu_bar.addMenu('&Tools')
         self.tool_menu.addAction(self.clen_longtext_btn)
         self.tool_menu.addAction(self.update_longtext_btn)
         self.tool_menu.addAction(self.merge_longtext_btn)
@@ -125,7 +125,7 @@ class MainUi(QMainWindow):
         self.tool_menu.addAction(self.check_longtext_btn)
         self.tool_menu.addSeparator()
 
-        self.tool_menu = self.menu.addMenu('&Settings')
+        self.settings_menu = self.menu_bar.addMenu('&Settings')
         
         self.setup_markings_btn = QAction('setup Prefixes', self)
         self.setup_markings_btn.triggered.connect(self.setup_prefix)
@@ -135,10 +135,13 @@ class MainUi(QMainWindow):
         self.info_btn.triggered.connect(self.show_info)
         self.info_btn.setCheckable(True)
 
-        self.tool_menu.addAction(self.setup_markings_btn)
-        self.tool_menu.addSeparator()
-        self.tool_menu.addAction(self.info_btn)
-        self.tool_menu.addSeparator()
+        self.settings_menu.addAction(self.setup_markings_btn)
+        self.settings_menu.addSeparator()
+        self.settings_menu.addAction(self.info_btn)
+        self.settings_menu.addSeparator()
+        
+        self.statusBar().showMessage('Ready')
+        
 
     def get_file_names(self):
         """get file names for import in the prozess
