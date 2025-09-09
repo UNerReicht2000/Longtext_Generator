@@ -22,6 +22,7 @@ import json
 
 from PyQt6.QtWidgets import (
     QWidget,
+    QGridLayout,
     QVBoxLayout,
     QTableWidget,
     QTableWidgetItem,
@@ -37,14 +38,40 @@ from core.kuka import Longtext
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 CONFIG_PATH = os.path.join(PROJECT_DIR, "longtext_config.json")
 
+DEFAULT_CONFIG = {
+    'Prefixes_Settings': {
+        'Digital Input': (),
+        'Digital Output': (),
+        'Analog Input': (),
+        'Analog Output': (),
+        'Grouped Input': (),
+        'Grouped Output': (),
+    },
+}
+
 class PrefixSettings(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
+        layout = QGridLayout()
+        self.setLayout(layout)
         prefix_settings = Longtext().var_markings
         self.setWindowTitle("Markings Settings")
-        self.setGeometry(100, 100, 250, 300)
-        self.setFixedSize(250, 300)
+        self.setGeometry(100, 100, 270, 300)
+        self.setFixedSize(270, 300)
+        if os.path.exists(CONFIG_PATH):
+            with open(CONFIG_PATH, 'r') as f:
+                config = json.load(f)
+        else:
+            with open(CONFIG_PATH,'w') as f:
+                json.dump(DEFAULT_CONFIG, f ,indent=2)
+                config = DEFAULT_CONFIG
+            print('Longtext_Config.json not found. Created default config.')
 
+        for key in config['Prefixes_Settings']:
+            for item in prefix_settings:
+                if item.name == key:
+                    item.var_prefix = tuple(config['Prefixes_Settings'][key])
+    
         self.markings_list = QTableWidget()
         self.markings_list.setRowCount(6)
         self.markings_list.setColumnCount(2)
@@ -54,7 +81,7 @@ class PrefixSettings(QWidget):
         self.markings_list.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
 
         row = 0
-        for item in Longtext().var_markings:
+        for item in prefix_settings:
             name = QTableWidgetItem(item.name)
             name.setFlags(Qt.ItemFlag.ItemIsEnabled)
             self.markings_list.setItem(row, 0, name)
@@ -76,11 +103,14 @@ class PrefixSettings(QWidget):
         self.buttons.accepted.connect(save_settings)
         self.buttons.rejected.connect(self.close)
 
-        layout = QVBoxLayout()
-        layout.addWidget(self.markings_list)
-        layout.addWidget(self.buttons)
-        self.setLayout(layout)
-       
+        #layout = QVBoxLayout()
+        layout.addWidget(self.markings_list, 0, 0)
+        layout.addWidget(self.buttons, 1, 0)
+        #self.setLayout(layout)
+    def get_settings(self):
+        pass
+    def set_settings(self):
+        pass
 #app = QApplication([])
 #window = PrefixSettings()
 #window.show()
