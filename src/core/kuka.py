@@ -59,6 +59,33 @@ class Longtext:
     def __call__(self):
         return self.longtext
     
+    def set_prefixes_settings(self,prefixes):
+        """Sets the prefixes based on a dictionary where the key is compared with the name.
+
+        Args:
+            prefixes (dict): dict 
+            
+        Raises:
+            TypeError: prefixes must be a dictionary
+            TypeError: all keys in prefixes must be strings
+            TypeError: all values in prefixes must be tuples
+            TypeError: all items in the tuples must be strings
+        """
+        
+        if not isinstance(prefixes, dict):
+            raise TypeError('prefixes must be a dictionary')
+        if not all(isinstance(key, str) for key in prefixes.keys()):
+            raise TypeError('all keys in prefixes must be strings')
+        if not all(isinstance(value, tuple) for value in prefixes.values()):
+            raise TypeError('all values in prefixes must be tuples')
+        if not all(isinstance(item, str) for value in prefixes.values() for item in value):
+            raise TypeError('all items in the tuples must be strings')
+        def set_prefixes(marking):
+            if marking.name in prefixes:
+                marking.var_prefix = prefixes[marking.name]
+            return marking
+        self.var_markings = list(map(set_prefixes,self.var_markings))
+    
     def create_template(self,expanded: bool = False):
         if type(expanded) != bool:
             raise TypeError('expanded must be a boolean')
@@ -79,6 +106,10 @@ class Longtext:
         Args:
             markings (list[Marking]): list of markings to import
         """
+        def set_marking_settings(marking):
+            if self.var_markings[index].name == marking.name:
+                self.var_markings[index].aktiv = marking.aktiv
+                self.var_markings[index].var_prefix = marking.var_prefix
         if not isinstance(markings, list):
             raise TypeError('markings must be a list of Marking')
         

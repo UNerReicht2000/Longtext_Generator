@@ -120,6 +120,23 @@ def test_impot_prefix(user_inputs):
         lt.impot_settings(user_inputs(3))
         lt.impot_settings(user_inputs(4))
 
+def test_set_prefixes_settings(user_inputs):
+    lt = Longtext()
+    lt.set_prefixes_settings({
+        "Digital Input": ("di", "Di"),
+        "Digital Output": ("do", "Do"),
+        "Analog Input": ("ai", "Ai"),
+        "Analog Output": ("ao", "Ao"),
+        "Grouped Input": ("gi", "Gi"),
+        "Grouped Output": ("go", "Go"),
+    })
+    for i in range(len(lt.var_markings)):
+        assert len(lt.var_markings[i].var_prefix) == 2
+
+    for test_item in ["not a dict", 123, True, 3.136, {"not a dict":123}]:
+        with pytest.raises(TypeError):
+            lt.set_prefixes_settings(test_item)
+
 @pytest.fixture()
 def dat_files():
     dat_file_sampel = b";Test file template for KUKA Longtext"
