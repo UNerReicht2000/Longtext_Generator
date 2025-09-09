@@ -17,12 +17,9 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #
 # --------------------------------------------------------------------
-from os import path
-from os import access
-from os import R_OK
-from os import W_OK
+import os
 
-from re import search
+import re
 
 from time import time
 
@@ -35,7 +32,7 @@ def extract_number(input_string: str):
     Returns:
         int: The extracted number as an integer. Returns None if no number is found.
     """
-    match = search(r'\d+', input_string)
+    match = re.search(r'\d+', input_string)
     if match:
         return int(match.group())
     return None
@@ -75,11 +72,11 @@ def validated_datpath(file_path: str) -> bool:
     Returns:
         bool: test result 
     """
-    if not path.exists(file_path):
+    if not os.path.exists(file_path):
         print('not path.exists(file_path)')
         return False
     
-    if not access(file_path, R_OK | W_OK):
+    if not os.access(file_path, os.R_OK | os.W_OK):
         print('not access(file_path, R_OK | W_OK)')
         return False
     
