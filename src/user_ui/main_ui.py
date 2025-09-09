@@ -105,14 +105,17 @@ class MainUi(QMainWindow):
         self.merge_longtext_btn = QAction('merge Longtext', self)
         #self.merge_longtext.triggered.connect()
         self.merge_longtext_btn.setCheckable(False)
+        self.merge_longtext_btn.setEnabled(False)
 
         self.longtext_editor_btn = QAction('Longtext Editor', self)
         #self.merge_longtext.triggered.connect()
         self.longtext_editor_btn.setCheckable(False)
+        self.longtext_editor_btn.setEnabled(False)
 
         self.check_longtext_btn = QAction('Check Longtext', self)
         self.check_longtext_btn.triggered.connect(self.check_longtext)
         self.check_longtext_btn.setCheckable(False)
+        self.check_longtext_btn.setEnabled(False)
 
         self.tool_menu = self.menu_bar.addMenu('&Tools')
         self.tool_menu.addAction(self.clen_longtext_btn)
@@ -123,29 +126,28 @@ class MainUi(QMainWindow):
         self.tool_menu.addAction(self.check_longtext_btn)
         self.tool_menu.addSeparator()
 
-        self.settings_menu = self.menu_bar.addMenu('&Settings')
         
-        self.setup_markings_btn = QAction('setup Prefixes', self)
-        self.setup_markings_btn.triggered.connect(self.setup_prefix)
-        self.setup_markings_btn.setCheckable(True)
+        self.setup_prefixes_btn = QAction('Setup Prefixes', self)
+        self.setup_prefixes_btn.triggered.connect(self.setup_prefix)
+        self.setup_prefixes_btn.setCheckable(True)
         
         self.info_btn = QAction('Info', self)
-        self.info_btn.triggered.connect(self.show_info)
+        self.info_btn.triggered.connect(self.setup_prefix)
         self.info_btn.setCheckable(True)
 
-        self.settings_menu.addAction(self.setup_markings_btn)
+        self.settings_menu = self.menu_bar.addMenu('&Settings')
+        self.settings_menu.addAction(self.setup_prefixes_btn)
         self.settings_menu.addSeparator()
         self.settings_menu.addAction(self.info_btn)
         self.settings_menu.addSeparator()
         
         self.statusBar().showMessage('Witing for Files...')
-        
 
     def get_file_names(self):
         """get file names for import in the prozess
         """
         self.import_data_btn.setChecked(False)
-        file_filter = 'Dat File (*.dat)'
+        file_filter = 'Dat File (*.dat);; All Text Files (*)'
         #file_filter = 'Dat File (*.xlsx *.csv *.dat);; Excel File (*.xlsx *.xls);; Image File (*.png *.jpg)'
         response = QFileDialog.getOpenFileNames(
             parent = self,
@@ -197,7 +199,7 @@ class MainUi(QMainWindow):
         self.check_longtext_btn.setChecked(False)
 
     def setup_prefix(self):
-        self.setup_markings_btn.setChecked(False)
+        self.setup_prefixes_btn.setChecked(False)
         self.prefix_settings.show()
 
     def show_info(self):
