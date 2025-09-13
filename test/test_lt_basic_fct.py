@@ -99,15 +99,15 @@ def user_inputs():
             
     return created_user_inputs
 
-def test_impot_prefix(user_inputs):
+def test_set_lt_settings(user_inputs):
     lt = Longtext()
-    lt.impot_settings(user_inputs(1))
+    lt.set_lt_settings(user_inputs(1))
     for i in range(len(lt.var_markings)):
         assert len(lt.var_markings[i].var_prefix) == 2
         assert lt.var_markings[i].aktiv is True
         assert lt.var_markings[i].name == user_inputs(1)[i].name
 
-    lt.impot_settings(user_inputs(2))
+    lt.set_lt_settings(user_inputs(2))
     for i in range(len(lt.var_markings)):
         assert len(lt.var_markings[i].var_prefix) == 0
         assert lt.var_markings[i].aktiv is True
@@ -115,14 +115,41 @@ def test_impot_prefix(user_inputs):
 
     for test_item in ["not a list", 123, True, 3.136, ["not a list"]]:
         with pytest.raises(TypeError):
-            lt.impot_settings(test_item)
+            lt.set_lt_settings(test_item)
     with pytest.raises(ValueError):
-        lt.impot_settings(user_inputs(3))
-        lt.impot_settings(user_inputs(4))
+        lt.set_lt_settings(user_inputs(3))
+        lt.set_lt_settings(user_inputs(4))
 
-def test_set_prefixes_settings(user_inputs):
+def test_set_selection():
     lt = Longtext()
-    lt.set_prefixes_settings({
+    lt.set_selection({
+        "Digital Input": True,
+        "Digital Output": True,
+        "Analog Input": True,
+        "Analog Output": True,  
+        "Grouped Input": True,
+        "Grouped Output": True,
+    })
+    for i in lt.var_markings:
+        assert i.aktiv is True
+        
+    lt.set_selection({
+        "Digital Input": False,
+        "Digital Output": False,
+        "Analog Input": False,
+        "Analog Output": False,  
+        "Grouped Input": False,
+        "Grouped Output": False,
+    })
+    for i in lt.var_markings:
+        assert i.aktiv is False
+    for test_item in ["not a dict", 123, True, 3.136, {"not a dict":123}]:
+        with pytest.raises(TypeError):
+            lt.set_prefixes(test_item)
+        
+def test_set_prefixes():
+    lt = Longtext()
+    lt.set_prefixes({
         "Digital Input": ("di", "Di"),
         "Digital Output": ("do", "Do"),
         "Analog Input": ("ai", "Ai"),
@@ -135,7 +162,7 @@ def test_set_prefixes_settings(user_inputs):
 
     for test_item in ["not a dict", 123, True, 3.136, {"not a dict":123}]:
         with pytest.raises(TypeError):
-            lt.set_prefixes_settings(test_item)
+            lt.set_prefixes(test_item)
 
 @pytest.fixture()
 def dat_files():

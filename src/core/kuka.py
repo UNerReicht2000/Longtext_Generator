@@ -59,7 +59,31 @@ class Longtext:
     def __call__(self):
         return self.longtext
     
-    def set_prefixes_settings(self,prefixes):
+    def set_selection(self,selection: dict):
+        """Sets the markings based on a dictionary where the key is compared with the name.
+
+        Args:
+            selection (dict): dict 
+            
+        Raises:
+            TypeError: selection must be a dictionary
+            TypeError: all keys in selection must be strings
+            TypeError: all values in selection must be booleans
+        """
+        
+        if not isinstance(selection, dict):
+            raise TypeError('selection must be a dictionary')
+        if not all(isinstance(key, str) for key in selection.keys()):
+            raise TypeError('all keys in selection must be strings')
+        if not all(isinstance(value, bool) for value in selection.values()):
+            raise TypeError('all values in selection must be booleans')
+        def set_aktiv(marking):
+            if marking.name in selection:
+                marking.aktiv = selection[marking.name]
+            return marking
+        self.var_markings = list(map(set_aktiv,self.var_markings))
+    
+    def set_prefixes(self,prefixes):
         """Sets the prefixes based on a dictionary where the key is compared with the name.
 
         Args:
@@ -100,12 +124,13 @@ class Longtext:
             for index in range(1,longtext_items[key]+1):
                 self.longtext[key+str(index)+']'] = []
 
-    def impot_settings(self,markings: list):
+    def set_lt_settings(self,markings: list):
         """imports a the markings for the ui
 
         Args:
             markings (list[Marking]): list of markings to import
         """
+        
         def set_marking_settings(marking):
             if self.var_markings[index].name == marking.name:
                 self.var_markings[index].aktiv = marking.aktiv
