@@ -18,8 +18,9 @@
 #
 # --------------------------------------------------------------------
 
+import os
 import pytest
-from os import remove as os_remove
+import random
 from tempfile import NamedTemporaryFile
 from src.core.kuka import Longtext
 from src.core.kuka import Marking
@@ -54,10 +55,10 @@ def user_inputs():
             case 1:
                 return [
                     Marking(aktiv=True, name="Digital Input", var_prefix=("di", "Di")),
-                    Marking(aktiv=True, name="Digital Output", var_prefix=("di", "Di")),
-                    Marking(aktiv=True, name="Analog Input", var_prefix=("di", "Di")),
-                    Marking(aktiv=True, name="Analog Output", var_prefix=("di", "Di")),
-                    Marking(aktiv=True, name="Grouped Input", var_prefix=("di", "Di")),
+                    Marking(aktiv=True, name="Digital Output", var_prefix=("do", "Do")),
+                    Marking(aktiv=True, name="Analog Input", var_prefix=("ai", "Ai")),
+                    Marking(aktiv=True, name="Analog Output", var_prefix=("ao", "Ao")),
+                    Marking(aktiv=True, name="Grouped Input", var_prefix=("gi", "Gi")),
                     Marking(aktiv=True, name="Grouped Output", var_prefix=("go", "Go")),
                 ]
             case 2:
@@ -185,7 +186,7 @@ def dat_files():
     yield files_names
 
     for file in files:
-        os_remove(file.name)
+        os.remove(file.name)
 
 def test_read_dat(dat_files):
 
@@ -199,3 +200,84 @@ def test_read_dat(dat_files):
     assert len(lt.base_data) == 1
 
     with pytest.raises(TypeError):lt.read_dat()
+    
+@pytest.fixture(scope="module")
+def prep_longtext():
+    def _create_longtext(test_case):
+        prep_lt = Longtext()
+        lines = 0
+        
+        match test_case:
+            case 1:
+                prep_lt.longtext = {
+                    '$IN[1]': ['diTest'],
+                    '$IN[2]': ['diTest','diTest'],
+                    '$IN[3]': ['diTest','diTest','diTest'],
+                    '$IN[4]': ['diTest','diTest','diTest','diTest'],
+                    '$IN[5]': [],
+                    '$IN[6]': [],
+                    '$IN[7]': [],
+                    '$IN[8]': [],
+                }
+                lines = 4
+            case 2:
+                for i1 in range(random.randrange(100,4000)):
+                    match random.randint(1,2):
+                        case 1:
+                            n = str(f'$IN[{i1}]')
+                        case 2:
+                            n = str(f'$IN[{i1}]')
+                    prep_lt.longtext[n] = []
+                    for i2 in range(random.randrange(0,3)):
+                        match random.randrange(0,4):
+                            case 1:
+                                if prep_lt.longtext[n] == []:
+                                    lines += 1
+                                prep_lt.longtext[n] += ['diTest'] 
+                            case 2:
+                                if prep_lt.longtext[n] == []:
+                                    lines += 1
+                                prep_lt.longtext[n] += ['doTest']
+                            case 3:
+                                if prep_lt.longtext[n] == []:
+                                    lines += 1
+                                prep_lt.longtext[n] += ['giTest']
+                            case 4:
+                                if prep_lt.longtext[n] == []:
+                                    lines += 1
+                                prep_lt.longtext[n] += ['goTest']
+                            case _:
+                                pass
+                        
+        return prep_lt.longtext, lines    
+    return _create_longtext
+
+def test_del_empty_lines(prep_longtext):
+    lt = Longtext()
+    prep_lt, lines = prep_longtext(1)
+    lt.longtext = prep_lt
+    lt.del_empty_lines()
+    assert len(lt.longtext) == lines
+    
+    prep_lt, lines = prep_longtext(2)
+    lt.longtext = prep_lt
+    lt.del_empty_lines()
+    assert len(lt.longtext) == lines
+    
+def test_del_prefixes(user_inputs,prep_longtext):
+    lt = Longtext()
+    lt.set_lt_settings(user_inputs(1))
+    
+    prep_lt, lines = prep_longtext(1)
+    lt.longtext = prep_lt
+    lt.del_präfixes()
+    for key in lt.longtext:
+        for i in lt.longtext[key]:
+            assert i == 'Test'
+    
+    prep_lt, lines = prep_longtext(2)
+    lt.longtext = prep_lt
+    lt.del_präfixes()
+    for key in lt.longtext:
+        for i in lt.longtext[key]:
+            assert i == 'Test'
