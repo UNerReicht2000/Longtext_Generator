@@ -250,8 +250,7 @@ def test_basic_fct(user_inputs,kuka_var_data):
     lt.set_lt_settings(user_inputs(10))
     lt.base_data = kuka_var_data(10)
     lt.scan_data()
-    #for key in lt.longtext:
-    #    print(f'{key}:{lt.longtext[key]}')
+
     assert len(lt.longtext) == 52
     assert lt.longtext['$IN[1]'] == ['test_input_1']
     assert lt.longtext['$IN[9]'] == ['test_group_input_1 2**0']
@@ -281,8 +280,7 @@ def test_without_prefix(user_inputs,kuka_var_data):
     lt.set_lt_settings(user_inputs(14))
     lt.base_data = kuka_var_data(10)
     lt.scan_data()
-    for key in lt.log_name:
-        print(f'{key}:{lt.longtext[key]}')
+
     assert len(lt.longtext) == 4
     for i in [1,2]:
         assert f'$ANIN[{i}]' in lt.longtext

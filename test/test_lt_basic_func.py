@@ -21,6 +21,7 @@
 import os
 import pytest
 import random
+from pprint import pprint
 from tempfile import NamedTemporaryFile
 from src.core.kuka import Longtext
 from src.core.kuka import Marking
@@ -119,7 +120,10 @@ def test_set_lt_settings(user_inputs):
             lt.set_lt_settings(test_item)
     with pytest.raises(ValueError):
         lt.set_lt_settings(user_inputs(3))
+    with pytest.raises(ValueError):
         lt.set_lt_settings(user_inputs(4))
+    with pytest.raises(ValueError):
+        lt.set_lt_settings(user_inputs(5))
 
 def test_set_selection():
     lt = Longtext()
@@ -199,7 +203,8 @@ def test_read_dat(dat_files):
     lt.read_dat(dat_files)
     assert len(lt.base_data) == 1
 
-    with pytest.raises(TypeError):lt.read_dat()
+    with pytest.raises(TypeError):
+        lt.read_dat()
     
 @pytest.fixture(scope="module")
 def prep_longtext():
@@ -221,15 +226,15 @@ def prep_longtext():
                 }
                 lines = 4
             case 2:
-                for i1 in range(random.randrange(100,4000)):
+                for i1 in range(random.randint(100,4000)):
                     match random.randint(1,2):
                         case 1:
                             n = str(f'$IN[{i1}]')
                         case 2:
-                            n = str(f'$IN[{i1}]')
+                            n = str(f'$OUT[{i1}]')
                     prep_lt.longtext[n] = []
-                    for i2 in range(random.randrange(0,3)):
-                        match random.randrange(0,4):
+                    for i2 in range(random.randint(0,3)):
+                        match random.randint(0,4):
                             case 1:
                                 if prep_lt.longtext[n] == []:
                                     lines += 1
@@ -248,19 +253,111 @@ def prep_longtext():
                                 prep_lt.longtext[n] += ['goTest']
                             case _:
                                 pass
-                        
+            case 3:
+                for i1 in range(8000):
+                    match random.randint(1,2):
+                        case 1:
+                            n = str(f'$IN[{i1}]')
+                        case 2:
+                            n = str(f'$OUT[{i1}]')
+                    prep_lt.longtext[n] = []
+                    for i2 in range(random.randint(0,3)):
+                        match random.randint(0,4):
+                            case 1:
+                                if prep_lt.longtext[n] == []:
+                                    lines += 1
+                                prep_lt.longtext[n] += ['diTest'] 
+                            case 2:
+                                if prep_lt.longtext[n] == []:
+                                    lines += 1
+                                prep_lt.longtext[n] += ['doTest']
+                            case 3:
+                                if prep_lt.longtext[n] == []:
+                                    lines += 1
+                                prep_lt.longtext[n] += ['giTest']
+                            case 4:
+                                if prep_lt.longtext[n] == []:
+                                    lines += 1
+                                prep_lt.longtext[n] += ['goTest']
+                            case _:
+                                pass
+            case 4:
+                start = random.randint(1,100)
+                end = random.randint(101,1000)
+                
+                for i1 in range(start,end):
+                    match random.randint(1,2):
+                        case 1:
+                            n = str(f'$IN[{i1}]')
+                        case 2:
+                            n = str(f'$OUT[{i1}]')
+                    prep_lt.longtext[n] = []
+                    for i2 in range(random.randint(0,3)):
+                        match random.randint(0,4):
+                            case 1:
+                                if prep_lt.longtext[n] == []:
+                                    lines += 1
+                                prep_lt.longtext[n] += ['diTest'] 
+                            case 2:
+                                if prep_lt.longtext[n] == []:
+                                    lines += 1
+                                prep_lt.longtext[n] += ['doTest']
+                            case 3:
+                                if prep_lt.longtext[n] == []:
+                                    lines += 1
+                                prep_lt.longtext[n] += ['giTest']
+                            case 4:
+                                if prep_lt.longtext[n] == []:
+                                    lines += 1
+                                prep_lt.longtext[n] += ['goTest']
+                            case _:
+                                pass
+            case 5:
+                start = random.randint(1001,2000)
+                end = random.randint(2001 ,3000)
+                
+                for i1 in range(start,end):
+                    match random.randint(1,2):
+                        case 1:
+                            n = str(f'$IN[{i1}]')
+                        case 2:
+                            n = str(f'$OUT[{i1}]')
+                    prep_lt.longtext[n] = []
+                    for i2 in range(random.randint(0,3)):
+                        match random.randint(0,4):
+                            case 1:
+                                if prep_lt.longtext[n] == []:
+                                    lines += 1
+                                prep_lt.longtext[n] += ['diTest'] 
+                            case 2:
+                                if prep_lt.longtext[n] == []:
+                                    lines += 1
+                                prep_lt.longtext[n] += ['doTest']
+                            case 3:
+                                if prep_lt.longtext[n] == []:
+                                    lines += 1
+                                prep_lt.longtext[n] += ['giTest']
+                            case 4:
+                                if prep_lt.longtext[n] == []:
+                                    lines += 1
+                                prep_lt.longtext[n] += ['goTest']
         return prep_lt.longtext, lines    
     return _create_longtext
 
 def test_del_empty_lines(prep_longtext):
     lt = Longtext()
     prep_lt, lines = prep_longtext(1)
-    lt.longtext = prep_lt
+    lt.longtext = prep_lt.copy()
     lt.del_empty_lines()
     assert len(lt.longtext) == lines
     
     prep_lt, lines = prep_longtext(2)
-    lt.longtext = prep_lt
+    lt.longtext = prep_lt.copy()
+    lt.del_empty_lines()
+    assert len(lt.longtext) == lines
+    
+    prep_lt, lines = prep_longtext(3)
+    lt.longtext = prep_lt.copy()
     lt.del_empty_lines()
     assert len(lt.longtext) == lines
     
@@ -269,15 +366,46 @@ def test_del_prefixes(user_inputs,prep_longtext):
     lt.set_lt_settings(user_inputs(1))
     
     prep_lt, lines = prep_longtext(1)
-    lt.longtext = prep_lt
+    lt.longtext = prep_lt.copy()
     lt.del_präfixes()
     for key in lt.longtext:
         for i in lt.longtext[key]:
             assert i == 'Test'
+            
+    for i in range(10):
+        prep_lt, lines = prep_longtext(2)
+        lt.longtext = prep_lt.copy()
+        lt.del_präfixes()
+        for key in lt.longtext:
+            for i in lt.longtext[key]:
+                assert i == 'Test'
+                
+        prep_lt, lines = prep_longtext(3)
+        lt.longtext = prep_lt
+        lt.del_präfixes()
+        for key in lt.longtext:
+            for i in lt.longtext[key]:
+                assert i == 'Test'
+            
+def test_merge(prep_longtext):
+    lt_main = Longtext()
+    lt_sub = Longtext()
+    prep_lt1, lines = prep_longtext(1)
+    prep_lt2, lines = prep_longtext(1)
     
-    prep_lt, lines = prep_longtext(2)
-    lt.longtext = prep_lt
-    lt.del_präfixes()
-    for key in lt.longtext:
-        for i in lt.longtext[key]:
-            assert i == 'Test'
+    lt_main.longtext = prep_lt1.copy()
+    lt_sub.longtext = prep_lt2.copy()
+    lt_main.merge(lt_sub)
+    
+    assert len(lt_main.longtext) == 8
+    for i in range(10):
+        prep_lt1, lines = prep_longtext(4)
+        prep_lt2, lines = prep_longtext(5)
+        lt_main.longtext = prep_lt1.copy()
+        lt_sub.longtext = prep_lt2.copy()
+        lt_main.merge(lt_sub)
+        assert len(lt_main.longtext) == (len(prep_lt1) + len(prep_lt2))
+    
+    for test_item in ["str", 123, True, 3.136, [], {}, None]:
+        with pytest.raises(TypeError):
+            lt_main.merge(test_item)
