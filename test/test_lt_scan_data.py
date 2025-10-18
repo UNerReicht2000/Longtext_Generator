@@ -129,15 +129,16 @@ def kuka_var_data():
                 dat_file_sampel = b"""
                     ;Test file template for KUKA Longtext
                     GLOBAL SIGNAL test_input_1 = $IN[1]
-                    GLOBAL SIGNAL test_input_2=$IN[2]
+                    GLOBAL SIGNAL test_input_2=$IN[2];Comment
                     GLOBAL SIGNAL test_input_3 = $in[3]
                     GLOBAL SIGNAL test_input_4=$In[4]
-                    GLOBAL SIGNAL test_input_5 = $IN[5]
-                    GLOBAL SIGNAL test_input_6 = $IN[6]
-                    GLOBAL SIGNAL test_input_7 = $IN[7]
+                    GLOBAL SIGNAL test_input_5 = $IN[5]   ;Comment       
+                    GLOBAL SIGNAL test_input_6 =           $IN[6]   ;Comment         
+                    GLOBAL SIGNAL test_input_7           =          $IN[7]        ;Comment    
                     GLOBAL SIGNAL test_input_8 = $IN[8]
                     GLOBAL SIGNAL test_group_input_1 = $In[9] TO $IN[16]
                     GLOBAL SIGNAL test_group_input_2=$IN[17] TO $IN[24]
+                    GLOBAL SIGNAL diEndeffekTOr1 = $IN[666]
 
                     GLOBAL SIGNAL test_anin_1 = $ANIN[1]
                     GLOBAL SIGNAL test_anin_2=$anin[2]
@@ -251,13 +252,15 @@ def test_basic_fct(user_inputs,kuka_var_data):
     lt.base_data = kuka_var_data(10)
     lt.scan_data()
 
-    assert len(lt.longtext) == 52
+    assert len(lt.longtext) == 53
     assert lt.longtext['$IN[1]'] == ['test_input_1']
+    assert lt.longtext['$IN[4]'] == ['test_input_4']
     assert lt.longtext['$IN[9]'] == ['test_group_input_1 2**0']
     assert lt.longtext['$ANIN[1]'] == ['test_anin_1']
     assert lt.longtext['$OUT[1]'] == ['test_output_1']
     assert lt.longtext['$OUT[17]'] == ['test_group_output_2 2**0']
     assert lt.longtext['$ANOUT[2]'] == ['test_anout_2']
+    assert lt.longtext['$IN[666]'] == ['diEndeffekTOr1']
 
 def test_without_prefix(user_inputs,kuka_var_data):  
     lt = Longtext()
@@ -271,7 +274,7 @@ def test_without_prefix(user_inputs,kuka_var_data):
     lt.set_lt_settings(user_inputs(13))
     lt.base_data = kuka_var_data(10)
     lt.scan_data()
-    assert len(lt.longtext) == 16
+    assert len(lt.longtext) == 17
     for i in [1,2,3,4,5,6,7,8]:
         assert f'$IN[{i}]' in lt.longtext
         assert f'$OUT[{i}]' in lt.longtext
