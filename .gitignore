@@ -8,3 +8,8 @@ wheels/
 
 # Virtual environments
 .venv
+# config files
+longtext_config.json
+
+#pytest
+.coverage
