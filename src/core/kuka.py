@@ -173,6 +173,7 @@ class Longtext:
                     data = importdat.read()
                     importdat.close()
                     result[files[index]] = data.split("\n")
+                    self.log += [f'File {files[index]} imported. Lines: {len(result[files[index]])}']
                 else:
                     self.log += [f'File {files[index]} not found']
                     raise FileNotFoundError(f'File {files[index]} not found')
@@ -228,9 +229,9 @@ class Longtext:
                 if with_comments:
                     self.base_data[file][line] = self.base_data[file][line].lstrip().lstrip(';')
                 self.base_data[file][line] = self.base_data[file][line].split(';')[0]
-                for item in ['Decl','Global','Const','Int','Signal','Bool','Defdat','Public','Enddat']:
+                for item in ['Decl ','Global ','Const ','Int ','Signal ','Bool ','Defdat ','Public ','Enddat ']:
                     self.base_data[file][line] = self.base_data[file][line].replace(item,'').replace(item.upper(),'').replace(item.lower(),'')
-                for item in ['To','=']:
+                for item in [' To ','=']:
                     self.base_data[file][line] = self.base_data[file][line].replace(item,' ').replace(item.upper(),' ').replace(item.lower(),' ')
                 self.base_data[file][line] = self.base_data[file][line].strip()
 
@@ -253,7 +254,7 @@ class Longtext:
                         if line[1] not in self.longtext:
                             self.longtext[line[1].upper()] = []
                         self.longtext[line[1].upper()] += [line[0]]
-
+                        print(line[0],line[1])
                     #grouped io
                     elif len(line) == 3 == marking.length and (line[1].startswith(marking.var_syktax) and line[2].startswith(marking.var_syktax)) and (not marking.var_prefix or line[0].startswith(marking.var_prefix)):
                         start_point = extract_number(line[1])
@@ -273,7 +274,7 @@ class Longtext:
             del self.longtext[key]
             
     def merge(self, other):
-        if isinstance(other,Longtext):
+        if not isinstance(other,Longtext):
             raise TypeError('only Longtext can be added')
         for key, value in other.longtext.items():
             if key in self.longtext:
@@ -282,16 +283,17 @@ class Longtext:
                 self.longtext[key] = value
         return self.longtext
 
-    def delete_präfix(self):
+    def del_präfixes(self):
         """deletes the prefix (diTest -> Test)
         """
         for marking in self.var_markings:
             for key in self.longtext:
                 if self.longtext[key]:
-                    for index in len(range(self.longtext[key])):
-                        self.longtext[key][index] = self.longtext[key][index].lstrip(marking.var_prefix)
-            
-    def delete_empty_lines(self):
+                    for i in range(len(self.longtext[key])):
+                        for prefix in marking.var_prefix:
+                            self.longtext[key][i] = self.longtext[key][i].removeprefix(prefix)
+                        
+    def del_empty_lines(self):
         keys_to_remove = [key for key in self.longtext if self.longtext[key] == []]
         for key in keys_to_remove:
             del self.longtext[key]
@@ -309,18 +311,19 @@ class Longtext:
                 print(error)
                 self.log += [error]
         self.log += [f'{count} Double declarations were found']
+        return count
 
     def export_csv(self,file_name: str,directory: str):
         if type(directory) == str:   
             final_file_name = validated_file_name(file_name)
             error_count = 0
-
-            while (path.isfile(path.join(directory, final_file_name))):
-                if path.isfile(path.join(directory, final_file_name)):
-                    basename, extension = path.splitext(final_file_name)
-                    final_file_name = f"{basename}_copy{extension}"
-
-                error_count += 1
+            
+            #while (path.isfile(path.join(directory, final_file_name))):
+            #    if path.isfile(path.join(directory, final_file_name)):
+            #        basename, extension = path.splitext(final_file_name)
+            #        final_file_name = f"{basename}_copy{extension}"
+            #
+            #    error_count += 1
             final_file_name = final_file_name
             self.log_name = final_file_name
 
