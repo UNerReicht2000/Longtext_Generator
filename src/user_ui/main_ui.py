@@ -267,7 +267,7 @@ class CoreUi(QWidget):
         raw_longtext.set_prefixes(prefixes)
         raw_longtext.set_selection(selection)
         raw_longtext.read_dat(files)
-        raw_longtext.set_lt_settings(self.longtext_settings)
+        ###raw_longtext.set_lt_settings(self.longtext_settings)
         raw_longtext.scan_data(include_comments)
         longtext.merge(raw_longtext)
         
