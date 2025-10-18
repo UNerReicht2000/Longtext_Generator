@@ -37,10 +37,10 @@ from PyQt6.QtWidgets import (
 )
 
 from PyQt6.QtGui import QAction
-from PyQt6.QtCore import QSettings, QStandardPaths
+from PyQt6.QtCore import QStandardPaths
 
 from core.kuka import Longtext
-from user_ui.settings_ui import PrefixSettings
+from user_ui.settings_ui import PrefixSettings,ConfigManager
 
 DEFAULT_DIRECTORY = QStandardPaths.writableLocation(QStandardPaths.StandardLocation.DocumentsLocation)
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -79,7 +79,7 @@ class MainUi(QMainWindow):
         self.setWindowTitle('Longtext Generator')
         self.setMaximumSize(1000, 800)
         
-        self.prefix_settings = PrefixSettings()
+        
         self.core_ui = CoreUi(self)
         
         self.setCentralWidget(self.core_ui)
@@ -102,7 +102,7 @@ class MainUi(QMainWindow):
         self.update_longtext_btn.triggered.connect(self.delete_empty_lines_in_longtext)
         self.update_longtext_btn.setCheckable(True)
 
-        self.merge_longtext_btn = QAction('merge Longtext', self)
+        self.merge_longtext_btn = QAction('Merge Longtext', self)
         #self.merge_longtext.triggered.connect()
         self.merge_longtext_btn.setCheckable(False)
         self.merge_longtext_btn.setEnabled(False)
@@ -132,7 +132,7 @@ class MainUi(QMainWindow):
         self.setup_prefixes_btn.setCheckable(True)
         
         self.info_btn = QAction('Info', self)
-        self.info_btn.triggered.connect(self.setup_prefix)
+        self.info_btn.triggered.connect(self.show_info)
         self.info_btn.setCheckable(True)
 
         self.settings_menu = self.menu_bar.addMenu('&Settings')
@@ -141,7 +141,7 @@ class MainUi(QMainWindow):
         self.settings_menu.addAction(self.info_btn)
         self.settings_menu.addSeparator()
         
-        self.statusBar().showMessage('Witing for Files...')
+        #self.statusBar().showMessage('Witing for Files...')
 
     def get_file_names(self):
         """get file names for import in the prozess
@@ -151,13 +151,13 @@ class MainUi(QMainWindow):
         #file_filter = 'Dat File (*.xlsx *.csv *.dat);; Excel File (*.xlsx *.xls);; Image File (*.png *.jpg)'
         response = QFileDialog.getOpenFileNames(
             parent = self,
-            caption = 'Select file(s)',
+            caption = 'Select File(s)',
             directory = DEFAULT_DIRECTORY,
             filter = file_filter,
         )
         print(response[0])
         print(len(response[0]))
-        if len(response[0] != 0):
+        if len(response[0]) != 0:
             for item in response[0]:
                 self.core_ui.file_handling.ui_files.addItem(QListWidgetItem(item))
                 self.core_ui.file_handling.files.append(item)
@@ -200,51 +200,12 @@ class MainUi(QMainWindow):
 
     def setup_prefix(self):
         self.setup_prefixes_btn.setChecked(False)
-        self.prefix_settings.show()
+        self.core_ui.prefix_settings_ui.show()
 
     def show_info(self):
         info_page = InfoDialog()
         info_page.exec()
         self.info_btn.setChecked(False)
-
-    def start_prozess(self):
-        print('Start Prozess')
-        self.apply_btn.setChecked(False)
-        file_filter = 'Longtext (*.csv *.txt)'
-        response = QFileDialog.getSaveFileName(
-            parent=self,
-            caption='Select a data file',
-            directory= DEFAULT_DIRECTORY,
-            filter=file_filter,
-            initialFilter='Longtext (*.csv *.txt)'
-            )
-        directory = response[0].replace(response[0].split('/')[-1],'')
-        file_name = response[0].split('/')[-1]
-
-        print(directory)
-        if len(directory) > 0:
-            longtext = Longtext()
-            raw_longtext = Longtext()
-            longtext.create_template(self.expanded_interfase.isChecked())
-            raw_longtext.read_dat(self.list_of_files)
-            raw_longtext.impot_settings(self.longtext_settings)
-            raw_longtext.scan_data()
-            longtext.merge(raw_longtext)
-            if self.delete_all_empty_lines.isChecked():
-                longtext.delete_empty_lines()
-            if self.delete_var_macker.isChecked():
-                longtext.delete_präfix()
-            if self.export_log.isChecked():
-                longtext.check_for_double_declarations()
-                longtext.export_log(file_name,directory)
-            if (file_name[-4:] == '.Csv') or (file_name[-4:] == '.csv'.upper()) or (file_name[-4:] == '.csv'):
-                longtext.export_csv(file_name,directory)
-            elif (file_name[-4:] == '.Txt') or (file_name[-4:] == '.txt'.upper()) or (file_name[-4:] == '.txt'):
-                longtext.export_txt(file_name,directory)
-            else:
-                print('Error wrong file format')
-        else:
-            print('Abort')
 
 class CoreUi(QWidget):
     def __init__(self,parent=None):
@@ -252,35 +213,34 @@ class CoreUi(QWidget):
         layout = QGridLayout()
         self.setLayout(layout)
         
-        self.longtext_settings = Longtext().var_markings
-
-        self.settings = QSettings('DU Software','Langtext Generator')
+        #self.longtext_settings = Longtext().var_markings
 
         self.list_of_lontext_config = []
 
+        self.prefix_settings_ui = PrefixSettings()
         self.file_handling = FileHandling()
         self.general_settings = GeneralSettings()
-        self.prefixs_selection = PrefixSelection()
-
+        self.prefixs_selection = ScanSelection()
 
         self.apply_btn = QDialogButtonBox(QDialogButtonBox.StandardButton.Apply)
-        self.apply_btn.accepted.connect(self.start_prozess)
+        self.apply_btn.clicked.connect(self.start_process)
         
         layout.addWidget(self.file_handling, 0, 0)
         layout.addWidget(self.general_settings, 0, 1)
         layout.addWidget(self.prefixs_selection, 0, 2)
         layout.addWidget(self.apply_btn, 1, 0, 1, 3)
         
-    def start_prozess(self):
-        print('Start Prozess')
-        self.apply_btn.setChecked(False)
+    def start_process(self):
+        print('Start Prozess core')
         files = self.file_handling.files
         include_comments = self.general_settings.inclusion_comments.isChecked()
         del_var_prefixes = self.general_settings.del_var_prefixes.isChecked()
         del_empty_lines = self.general_settings.del_empty_lines.isChecked()
         expanded_interfase = self.general_settings.expanded_interfase.isChecked()
         export_log = self.general_settings.export_log.isChecked()
-        
+        selection = self.prefixs_selection.get_selection()
+        prefixes = ConfigManager().lord_prefix()
+        print(prefixes)
         
         if len(files) == 0:
             print('No files selected')
@@ -289,7 +249,7 @@ class CoreUi(QWidget):
         file_filter = 'Longtext (*.csv *.txt)'
         response = QFileDialog.getSaveFileName(
             parent=self,
-            caption='Select a data file',
+            caption='Select a Data File',
             directory= DEFAULT_DIRECTORY,
             filter=file_filter,
             initialFilter='Longtext (*.csv *.txt)'
@@ -297,7 +257,6 @@ class CoreUi(QWidget):
         directory = response[0].replace(response[0].split('/')[-1],'')
         file_name = response[0].split('/')[-1]
 
-        print(directory)
         if len(directory) == 0:
             print('Abort')
             return
@@ -305,16 +264,18 @@ class CoreUi(QWidget):
         longtext = Longtext()
         raw_longtext = Longtext()
         longtext.create_template(expanded_interfase)
+        raw_longtext.set_prefixes(prefixes)
+        raw_longtext.set_selection(selection)
         raw_longtext.read_dat(files)
-        raw_longtext.impot_settings(self.longtext_settings)
+        raw_longtext.set_lt_settings(self.longtext_settings)
         raw_longtext.scan_data(include_comments)
         longtext.merge(raw_longtext)
         
         if del_empty_lines:
-            longtext.delete_empty_lines()
+            longtext.del_empty_lines()
             
         if del_var_prefixes:
-            longtext.delete_präfix()
+            longtext.del_präfixes()
             
         if export_log:
             longtext.check_for_double_declarations()
@@ -331,6 +292,7 @@ class FileHandling(QGroupBox):
     def __init__(self, parent=None):
         super().__init__(parent=None)
         
+        self.setAcceptDrops(True)
         self.files = []
         self.list_of_drops = []
         
@@ -392,7 +354,6 @@ class FileHandling(QGroupBox):
             except:
                 pass
         print(self.files)
-        #du.printList(self.WindowListOfFiles)
     def clear_list(self):
         print('DeleteListButten = True')
         self.clean_list_btn.setChecked(False)
@@ -422,7 +383,7 @@ class GeneralSettings(QGroupBox):
         
         layout.addStretch()
 
-class PrefixSelection(QGroupBox):
+class ScanSelection(QGroupBox):
     def __init__(self, parent=None):
         super().__init__(parent=None)
         
@@ -473,6 +434,17 @@ class PrefixSelection(QGroupBox):
         for item in self.markings:
             item.setChecked(False) 
         self.set_lt_config()
+        
+    def get_selection(self):
+        """get the current selection of the prefixs
+        
+        Returns:
+            dict: dictionary with the current selection of the prefixs
+        """
+        selection = {}
+        for i in range(len(self.prefixes_list)):
+            selection[self.prefixes_list[i].name] = self.markings[i].isChecked()
+        return selection
                     
 app = QApplication([])
 window = MainUi()
