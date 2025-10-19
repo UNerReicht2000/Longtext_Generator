@@ -5,7 +5,7 @@ a = Analysis(
     ['src\\main.py'],
     pathex=['src'],
     binaries=[],
-    datas=[],
+    datas=[('.\\src\\longtext_config.json', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
