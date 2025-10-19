@@ -62,8 +62,7 @@ class InfoDialog(QDialog):
                     
                     (c) 2025 by DU Software
                     
-                    Version: V1.0.0.1 (Pre Relase)
-                    Date: 2025-08-20
+                    Version: V1.0.0.0 (Pre Relase)
                     """)
         self.buttons = QDialogButtonBox(QDialogButtonBox.StandardButton.Close)
         self.buttons.rejected.connect(self.close)
